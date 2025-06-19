@@ -1,7 +1,19 @@
 [project]
 name = "wbweb"
 version = "0.1.0"
-description = "Add your description here"
+description = "A general-purpose web framework for Warmblood Co., Ltd."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = []
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
+]
