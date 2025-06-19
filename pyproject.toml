@@ -4,7 +4,9 @@ version = "0.1.0"
 description = "A general-purpose web framework for Warmblood Co., Ltd."
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "starlette>=0.20.0",
+]
 
 [project.optional-dependencies]
 test = [

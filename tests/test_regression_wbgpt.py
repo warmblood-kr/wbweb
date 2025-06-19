@@ -150,6 +150,7 @@ class TestBothCodebasesWork:
             wbweb_result = wbweb_renderer.render(test_case)
             
             # Run equivalent test in wbgpt subprocess to avoid import conflicts
+            import json
             wbgpt_test = subprocess.run([
                 sys.executable, "-c", 
                 f"from wbgpt.core.templates import HiccupRenderer; "
