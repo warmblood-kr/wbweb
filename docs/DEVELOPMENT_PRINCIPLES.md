@@ -126,6 +126,53 @@ class TestHiccupRendererExtraction:
 - **Temporal Docs** (`/docs/{branch-name}/`): Task plans, progress, decisions
 - **Archive on Completion**: Move temporal docs to archive after task completion
 
+## Principle 8: Proper Unit Testing Patterns
+
+**Rule**: Use standard unit testing practices, avoid subprocess calls and external process dependencies in tests.
+
+### Why This Matters
+- **Reliability**: Subprocess tests are brittle and dependent on external environment
+- **Speed**: In-process tests run faster than subprocess calls
+- **Isolation**: Unit tests should test units in isolation, not integration across processes
+- **Maintainability**: Standard testing patterns are easier to understand and maintain
+
+### Anti-Patterns to Avoid
+```python
+# ❌ BAD: Using subprocess.run() in tests
+result = subprocess.run([
+    sys.executable, "-c", 
+    "from external_package import Component; print(Component().method())"
+], capture_output=True, text=True)
+
+# ❌ BAD: Testing external codebases from within your test suite
+# Tests in wbweb should not be responsible for testing wbgpt functionality
+```
+
+### Preferred Patterns
+```python
+# ✅ GOOD: Direct unit testing
+from wbweb import Component
+component = Component()
+result = component.method()
+assert result == expected
+
+# ✅ GOOD: Mock external dependencies if needed
+from unittest.mock import Mock
+mock_external = Mock()
+mock_external.method.return_value = "expected"
+```
+
+### Implementation Guidelines
+- **Test Your Code**: Focus tests on the code you own and control
+- **Mock Dependencies**: Use mocking for external dependencies, not subprocess calls
+- **Integration Tests Separate**: Keep integration tests separate from unit tests
+- **Cross-System Testing**: If needed, use proper integration testing frameworks
+
+### Examples in Practice
+- **Fixed**: Replace subprocess-based wbgpt testing with focused wbweb unit tests
+- **Improved**: Use mocks for Request objects instead of subprocess calls to test starlette integration
+- **Better Isolation**: Test ContentNegotiator logic without external process dependencies
+
 ## Principle Integration
 
 These principles work together to create a sustainable development process:
@@ -137,5 +184,6 @@ These principles work together to create a sustainable development process:
 5. **No Ad-Hoc Code** preserves knowledge
 6. **Living Documentation** captures the process
 7. **Separation of Concerns** organizes knowledge properly
+8. **Proper Unit Testing** ensures reliable, maintainable validation
 
 The result is a development process that scales, preserves knowledge, and maintains system quality over time.
