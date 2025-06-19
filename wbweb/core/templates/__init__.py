@@ -1,7 +1,7 @@
 """
-Template rendering framework for wbweb.
+Core template framework module.
 
-Provides hiccup-style HTML rendering and content negotiation.
+Provides hiccup-style rendering and content negotiation.
 """
 
 from .hiccup import HiccupRenderer, HiccupTree

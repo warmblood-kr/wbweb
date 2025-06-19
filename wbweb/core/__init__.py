@@ -1,6 +1,6 @@
 """
-Core framework components for wbweb.
+wbweb core framework components.
 
-Provides the foundational building blocks including templates, database utilities,
-web utilities, and configuration management.
+Provides web framework building blocks including templates, web utilities, 
+database helpers, and configuration management.
 """
