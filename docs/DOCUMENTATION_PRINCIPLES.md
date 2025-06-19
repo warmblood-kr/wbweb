@@ -23,16 +23,24 @@ Documents tied to specific tasks, features, or time periods:
 ## Branch-Document Matching Principle
 
 ### Git Branch ↔ Documentation Directory Mapping
-- **Branch name**: `extraction/wbgpt-to-wbweb`
-- **Docs directory**: `/docs/extraction-wbgpt-to-wbweb/`
+- **Branch name**: `task/extract-wbgpt-core`
+- **Docs directory**: `/docs/task-extract-wbgpt-core/`
 
-### Naming Convention
-- Branch: `{category}/{task-description}`
-- Docs: `/docs/{category}-{task-description}/`
+### Branch Naming Convention
+Use standard Git flow prefixes:
+- `feature/{description}` - New features or capabilities
+- `task/{description}` - General tasks, refactoring, extraction work
+- `bug/{description}` - Bug fixes
+- `refactor/{description}` - Code restructuring without behavior change
+- `docs/{description}` - Documentation-only changes
+
+### Documentation Directory Mapping
+- Branch: `{prefix}/{description}` → Docs: `/docs/{prefix}-{description}/`
 - Examples:
   - Branch: `feature/user-auth` → Docs: `/docs/feature-user-auth/`
+  - Branch: `task/extract-wbgpt-core` → Docs: `/docs/task-extract-wbgpt-core/`
   - Branch: `refactor/database-layer` → Docs: `/docs/refactor-database-layer/`
-  - Branch: `extraction/wbgpt-to-wbweb` → Docs: `/docs/extraction-wbgpt-to-wbweb/`
+  - Branch: `bug/fix-content-negotiation` → Docs: `/docs/bug-fix-content-negotiation/`
 
 ### Workflow
 1. **Before starting task**: Create git branch for the task
@@ -69,26 +77,26 @@ Documents tied to specific tasks, features, or time periods:
 
 ### Starting a New Task
 ```bash
-# Create branch
-git checkout -b feature/new-awesome-feature
+# Create branch with appropriate prefix
+git checkout -b task/extract-wbgpt-core
 
 # Create corresponding docs directory
-mkdir -p docs/feature-new-awesome-feature
+mkdir -p docs/task-extract-wbgpt-core
 
 # Create initial task documentation
-touch docs/feature-new-awesome-feature/PLAN.md
-touch docs/feature-new-awesome-feature/PROGRESS.md
+touch docs/task-extract-wbgpt-core/PLAN.md
+touch docs/task-extract-wbgpt-core/PROGRESS.md
 ```
 
 ### Completing a Task
 ```bash
-# Merge feature branch
+# Merge task branch
 git checkout main
-git merge feature/new-awesome-feature
+git merge task/extract-wbgpt-core
 
 # Archive temporal documentation
-mkdir -p docs/archive/feature-new-awesome-feature
-mv docs/feature-new-awesome-feature/* docs/archive/feature-new-awesome-feature/
+mkdir -p docs/archive/task-extract-wbgpt-core
+mv docs/task-extract-wbgpt-core/* docs/archive/task-extract-wbgpt-core/
 
 # Update timeless documentation with any architectural changes
 # (if applicable)
