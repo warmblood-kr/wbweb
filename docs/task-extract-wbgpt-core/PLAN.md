@@ -10,11 +10,13 @@
 - [x] Design wbweb package structure
 - [x] Plan extraction approach
 
-### Phase 2: Structure & Design 🔄
-- [ ] Define clean wbweb package structure
+### Phase 2: Structure & Design ✅
+- [x] Create systematic structure analysis tool
+- [x] Analyze component coupling and dependencies
+- [x] Identify extraction order (data-driven approach)
+- [x] Define first extraction target (`templates.hiccup`)
+- [ ] Set up wbweb package structure
 - [ ] Design public API interfaces
-- [ ] Plan component dependencies
-- [ ] Create migration strategy
 
 ### Phase 3: Extraction 📋
 - [ ] Clean up wbgpt-specific logic from core components

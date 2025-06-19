@@ -1,0 +1,310 @@
+{
+  "components": {
+    "settings": {
+      "name": "settings",
+      "path": "/home/toracle/projects/wbgpt/wbgpt/core/settings.py",
+      "imports": [
+        "boto3",
+        "pathlib",
+        "os"
+      ],
+      "internal_imports": [],
+      "external_imports": [
+        "boto3",
+        "pathlib",
+        "os"
+      ],
+      "classes": [],
+      "functions": [
+        "load_external_config"
+      ],
+      "lines_of_code": 122,
+      "has_business_logic": true,
+      "coupling_score": 0
+    },
+    "database.managers": {
+      "name": "database.managers",
+      "path": "/home/toracle/projects/wbgpt/wbgpt/core/database/managers.py",
+      "imports": [
+        "typing",
+        "functools",
+        "sqlalchemy.ext.asyncio",
+        "config",
+        "sqlalchemy"
+      ],
+      "internal_imports": [],
+      "external_imports": [
+        "typing",
+        "functools",
+        "sqlalchemy.ext.asyncio",
+        "config",
+        "sqlalchemy"
+      ],
+      "classes": [
+        "Manager"
+      ],
+      "functions": [
+        "with_session",
+        "__init__"
+      ],
+      "lines_of_code": 103,
+      "has_business_logic": true,
+      "coupling_score": 0
+    },
+    "database.config": {
+      "name": "database.config",
+      "path": "/home/toracle/projects/wbgpt/wbgpt/core/database/config.py",
+      "imports": [
+        "base",
+        "settings",
+        "sqlalchemy.ext.asyncio",
+        "os"
+      ],
+      "internal_imports": [],
+      "external_imports": [
+        "sqlalchemy.ext.asyncio",
+        "settings",
+        "base",
+        "os"
+      ],
+      "classes": [],
+      "functions": [
+        "get_engine"
+      ],
+      "lines_of_code": 48,
+      "has_business_logic": true,
+      "coupling_score": 0
+    },
+    "database.base": {
+      "name": "database.base",
+      "path": "/home/toracle/projects/wbgpt/wbgpt/core/database/base.py",
+      "imports": [
+        "managers",
+        "sqlalchemy.orm",
+        "sqlalchemy.ext.asyncio"
+      ],
+      "internal_imports": [],
+      "external_imports": [
+        "sqlalchemy.orm",
+        "managers",
+        "sqlalchemy.ext.asyncio"
+      ],
+      "classes": [
+        "BaseMeta",
+        "Base"
+      ],
+      "functions": [
+        "__new__"
+      ],
+      "lines_of_code": 29,
+      "has_business_logic": true,
+      "coupling_score": 0
+    },
+    "templates.hiccup": {
+      "name": "templates.hiccup",
+      "path": "/home/toracle/projects/wbgpt/wbgpt/core/templates/hiccup.py",
+      "imports": [
+        "typing"
+      ],
+      "internal_imports": [],
+      "external_imports": [
+        "typing"
+      ],
+      "classes": [
+        "HiccupRenderer"
+      ],
+      "functions": [
+        "render",
+        "_render_attributes",
+        "_escape_html"
+      ],
+      "lines_of_code": 34,
+      "has_business_logic": false,
+      "coupling_score": 0
+    },
+    "templates.renderers": {
+      "name": "templates.renderers",
+      "path": "/home/toracle/projects/wbgpt/wbgpt/core/templates/renderers.py",
+      "imports": [
+        "typing",
+        "hiccup",
+        "json",
+        "starlette.requests"
+      ],
+      "internal_imports": [],
+      "external_imports": [
+        "typing",
+        "hiccup",
+        "json",
+        "starlette.requests"
+      ],
+      "classes": [
+        "DefaultRenderer",
+        "UIRenderer",
+        "ApiRenderer"
+      ],
+      "functions": [
+        "render",
+        "render_ui",
+        "render_api",
+        "render_raw",
+        "component_to_json"
+      ],
+      "lines_of_code": 74,
+      "has_business_logic": false,
+      "coupling_score": 0
+    },
+    "web.negotiation": {
+      "name": "web.negotiation",
+      "path": "/home/toracle/projects/wbgpt/wbgpt/core/web/negotiation.py",
+      "imports": [
+        "starlette.requests",
+        "templates"
+      ],
+      "internal_imports": [],
+      "external_imports": [
+        "starlette.requests",
+        "templates"
+      ],
+      "classes": [
+        "ContentNegotiator"
+      ],
+      "functions": [
+        "is_api_request",
+        "get_renderer"
+      ],
+      "lines_of_code": 27,
+      "has_business_logic": false,
+      "coupling_score": 0
+    },
+    "web.exceptions": {
+      "name": "web.exceptions",
+      "path": "/home/toracle/projects/wbgpt/wbgpt/core/web/exceptions.py",
+      "imports": [
+        "starlette.responses",
+        "logging",
+        "starlette.requests",
+        "decorators",
+        "services.chat_service"
+      ],
+      "internal_imports": [],
+      "external_imports": [
+        "starlette.responses",
+        "logging",
+        "starlette.requests",
+        "decorators",
+        "services.chat_service"
+      ],
+      "classes": [],
+      "functions": [],
+      "lines_of_code": 37,
+      "has_business_logic": true,
+      "coupling_score": 0
+    },
+    "web.decorators": {
+      "name": "web.decorators",
+      "path": "/home/toracle/projects/wbgpt/wbgpt/core/web/decorators.py",
+      "imports": [
+        "starlette.responses",
+        "functools",
+        "json",
+        "starlette.requests",
+        "templates.hiccup",
+        "negotiation"
+      ],
+      "internal_imports": [],
+      "external_imports": [
+        "starlette.responses",
+        "functools",
+        "json",
+        "starlette.requests",
+        "templates.hiccup",
+        "negotiation"
+      ],
+      "classes": [],
+      "functions": [
+        "content_negotiation",
+        "render_error_response",
+        "decorator"
+      ],
+      "lines_of_code": 58,
+      "has_business_logic": true,
+      "coupling_score": 0
+    }
+  },
+  "dependency_graph": {},
+  "recommendations": {
+    "extraction_order": [
+      {
+        "name": "templates.hiccup",
+        "coupling_score": 0,
+        "reason": "Low coupling, no business logic",
+        "priority": "high"
+      },
+      {
+        "name": "templates.renderers",
+        "coupling_score": 0,
+        "reason": "Low coupling, no business logic",
+        "priority": "high"
+      },
+      {
+        "name": "web.negotiation",
+        "coupling_score": 0,
+        "reason": "Low coupling, no business logic",
+        "priority": "high"
+      }
+    ],
+    "high_priority": [
+      {
+        "name": "templates.hiccup",
+        "coupling_score": 0,
+        "reason": "Low coupling, no business logic",
+        "priority": "high"
+      },
+      {
+        "name": "templates.renderers",
+        "coupling_score": 0,
+        "reason": "Low coupling, no business logic",
+        "priority": "high"
+      },
+      {
+        "name": "web.negotiation",
+        "coupling_score": 0,
+        "reason": "Low coupling, no business logic",
+        "priority": "high"
+      }
+    ],
+    "needs_cleanup": [
+      {
+        "name": "settings",
+        "reason": "Contains business logic that needs removal"
+      },
+      {
+        "name": "database.managers",
+        "reason": "Contains business logic that needs removal"
+      },
+      {
+        "name": "database.config",
+        "reason": "Contains business logic that needs removal"
+      },
+      {
+        "name": "database.base",
+        "reason": "Contains business logic that needs removal"
+      },
+      {
+        "name": "web.exceptions",
+        "reason": "Contains business logic that needs removal"
+      },
+      {
+        "name": "web.decorators",
+        "reason": "Contains business logic that needs removal"
+      }
+    ]
+  },
+  "summary": {
+    "total_components": 9,
+    "generic_components": 3,
+    "business_components": 6,
+    "extraction_ready": 3
+  }
+}

@@ -1,0 +1,29 @@
+"""
+wbweb - A general-purpose web framework for Warmblood Co., Ltd.
+
+Core Features:
+- Hiccup-style HTML rendering (Python data structures → HTML)
+- Content negotiation (automatic API/UI client detection)
+- Django-style SQLAlchemy managers with async support
+- Generic configuration system
+- Minimal dependencies (Starlette + SQLAlchemy)
+"""
+
+__version__ = "0.1.0"
+
+# Main exports for convenience
+from wbweb.core.templates import HiccupRenderer, HiccupTree, DefaultRenderer, UIRenderer, ApiRenderer
+from wbweb.core.web import ContentNegotiator, content_negotiation, render_error_response
+from wbweb.core.database import (
+    Manager, configure_session_maker, Base, BaseMeta,
+    configure_database, get_engine, get_async_session_maker, 
+    create_tables, drop_tables, get_db_session
+)
+
+__all__ = [
+    "HiccupRenderer", "HiccupTree", "DefaultRenderer", "UIRenderer", "ApiRenderer", 
+    "ContentNegotiator", "content_negotiation", "render_error_response",
+    "Manager", "configure_session_maker", "Base", "BaseMeta",
+    "configure_database", "get_engine", "get_async_session_maker", 
+    "create_tables", "drop_tables", "get_db_session"
+]

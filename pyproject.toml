@@ -1,7 +1,61 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "wbweb"
 version = "0.1.0"
-description = "Add your description here"
+description = "Lightweight FaaS-optimized web framework with Hiccup-style HTML rendering and Django-style ORM"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+authors = [
+    {name = "Warmblood Co., Ltd.", email = "info@warmblood.co.jp"},
+]
+maintainers = [
+    {name = "Warmblood Co., Ltd.", email = "info@warmblood.co.jp"},
+]
+license = "MIT"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Framework :: AsyncIO",
+]
+keywords = [
+    "web", "framework", "async", "starlette", "hiccup", "html", "htmx", 
+    "faas", "serverless", "lightweight", "orm", "sqlalchemy", "django-style"
+]
+dependencies = [
+    "starlette>=0.20.0",
+    "sqlalchemy>=2.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/warmblood/wbweb"
+Repository = "https://github.com/warmblood/wbweb"
+Issues = "https://github.com/warmblood/wbweb/issues"
+Documentation = "https://github.com/warmblood/wbweb#readme"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
+    "pytest-asyncio>=0.21.0",
+]
+test = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.21.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["wbweb*"]
+exclude = ["tests*", "analysis*", "docs*"]

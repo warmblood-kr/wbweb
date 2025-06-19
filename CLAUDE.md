@@ -45,13 +45,22 @@ The `/docs/` directory contains our project knowledge base:
 - `ARCHITECTURE.md` - Design decisions and package structure
 - `COMPONENTS.md` - Detailed component mapping (wbgpt → wbweb)
 
-## Documentation Organization
+## Development Principles
 
-This project follows strict documentation principles to separate timeless vs temporal documentation. **Always read `/docs/DOCUMENTATION_PRINCIPLES.md`** to understand:
+This project follows systematic development principles refined through practice. **Always read the key principles documents**:
 
-- **Timeless docs** (in `/docs/`) - Architecture, API, development guidelines
-- **Temporal docs** (in `/docs/{branch-name}/`) - Task-specific plans and progress
-- **Branch-document matching** - Git branch names map to documentation directories
+### Essential Reading
+- **`/docs/DEVELOPMENT_PRINCIPLES.md`** - Core development principles including:
+  - No ad-hoc code execution (always create test files)  
+  - Structure-preserving transformations
+  - Tool creation over manual work
+  - Data-driven decision making
+  - Incremental validation with immediate feedback
+
+- **`/docs/DOCUMENTATION_PRINCIPLES.md`** - Documentation organization:
+  - **Timeless docs** (in `/docs/`) - Architecture, API, development guidelines
+  - **Temporal docs** (in `/docs/{branch-name}/`) - Task-specific plans and progress
+  - **Branch-document matching** - Git branch names map to documentation directories
 
 ## Long-term Project Context
 
