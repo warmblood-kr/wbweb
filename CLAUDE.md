@@ -40,10 +40,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Documentation Structure
 The `/docs/` directory contains our project knowledge base:
-- `EXTRACTION_PLAN.md` - Master plan for extracting components from wbgpt
-- `PROGRESS.md` - Session-by-session progress tracking
+
 - `ARCHITECTURE.md` - Design decisions and package structure
-- `COMPONENTS.md` - Detailed component mapping (wbgpt → wbweb)
+- `DEVELOPMENT_PRINCIPLES.md` - Core development principles including:
+- `DOCUMENTATION_PRINCIPLES.md` - Documentation organization:
 
 ## Development Principles
 
