@@ -44,7 +44,7 @@ dependencies = [
 Homepage = "https://github.com/warmblood-kr/wbweb"
 Repository = "https://github.com/warmblood-kr/wbweb"
 Issues = "https://github.com/warmblood-kr/wbweb/issues"
-Documentation = "https://github.com/warmblood-kr/wbweb/blob/main/README.md"
+Documentation = "https://github.com/warmblood-kr/wbweb#readme"
 
 [project.optional-dependencies]
 dev = [
