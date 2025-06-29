@@ -9,10 +9,10 @@ description = "Lightweight FaaS-optimized web framework with Hiccup-style HTML r
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [
-    {name = "Warmblood Co., Ltd.", email = "info@warmblood.co.jp"},
+    {name = "Warmblood Co., Ltd.", email = "contact@warmblood.kr"},
 ]
 maintainers = [
-    {name = "Warmblood Co., Ltd.", email = "info@warmblood.co.jp"},
+    {name = "Warmblood Co., Ltd.", email = "contact@warmblood.kr"},
 ]
 license = "MIT"
 classifiers = [
@@ -41,10 +41,10 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/warmblood/wbweb"
-Repository = "https://github.com/warmblood/wbweb"
-Issues = "https://github.com/warmblood/wbweb/issues"
-Documentation = "https://github.com/warmblood/wbweb#readme"
+Homepage = "https://github.com/warmblood-kr/wbweb"
+Repository = "https://github.com/warmblood-kr/wbweb"
+Issues = "https://github.com/warmblood-kr/wbweb/issues"
+Documentation = "https://github.com/warmblood-kr/wbweb/blob/main/README.md"
 
 [project.optional-dependencies]
 dev = [
