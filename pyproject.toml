@@ -9,10 +9,10 @@ description = "Lightweight FaaS-optimized web framework with Hiccup-style HTML r
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [
-    {name = "Warmblood Co., Ltd.", email = "contact@warmblood.kr"},
+    {name = "Warmblood Co., Ltd.", email = "dev@warmblood.kr"},
 ]
 maintainers = [
-    {name = "Warmblood Co., Ltd.", email = "contact@warmblood.kr"},
+    {name = "Warmblood Co., Ltd.", email = "dev@warmblood.kr"},
 ]
 license = "MIT"
 classifiers = [
