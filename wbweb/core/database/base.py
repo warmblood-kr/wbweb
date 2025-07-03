@@ -20,12 +20,6 @@ class BaseMeta(type(DeclarativeBase)):
         
         # Only process actual model classes (ones with __tablename__ and no __no_table__)
         if hasattr(cls, '__tablename__') and not getattr(cls, '__no_table__', False):
-            # Find managers in the class and bind them
-            for attr_name, attr_value in namespace.items():
-                if isinstance(attr_value, Manager):
-                    # Replace with bound manager
-                    setattr(cls, attr_name, Manager(cls))
-            
             # Always provide default 'objects' manager (Django behavior)
             # This happens automatically even if not declared in class
             if not hasattr(cls, 'objects'):
