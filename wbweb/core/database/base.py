@@ -18,6 +18,12 @@ class BaseMeta(type(DeclarativeBase)):
         # Let DeclarativeBase handle its logic first
         cls = super().__new__(mcs, name, bases, namespace, **kwargs)
         
+        for attr_name, attr_value in namespace.items():
+            if isinstance(attr_value, Manager):
+                # Replace with bound manager of the same type
+                manager_class = type(attr_value)
+                setattr(cls, attr_name, manager_class(cls))
+        
         # Only process actual model classes (ones with __tablename__ and no __no_table__)
         if hasattr(cls, '__tablename__') and not getattr(cls, '__no_table__', False):
             # Always provide default 'objects' manager (Django behavior)
