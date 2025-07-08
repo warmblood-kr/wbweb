@@ -5,7 +5,7 @@ Provides reusable decorators for cross-cutting concerns like content negotiation
 """
 
 from functools import wraps
-from starlette.responses import HTMLResponse
+from starlette.responses import HTMLResponse, RedirectResponse
 from starlette.requests import Request
 from .negotiation import ContentNegotiator
 
@@ -34,6 +34,11 @@ def content_negotiation(renderer_class):
             # Let renderer handle content negotiation based on Accept header
             component_or_data = renderer.render(request, **result_dict)
             
+            redirect_url = result_dict.get('redirect_url', '')
+
+            if redirect_url:
+                return RedirectResponse(redirect_url)
+            
             # Handle different return types
             if isinstance(component_or_data, dict):
                 # JSON response - business data already serialized
@@ -48,6 +53,7 @@ def content_negotiation(renderer_class):
                 
                 # Return HTML response
                 status_code = result_dict.get('status_code', 200)
+                
                 return HTMLResponse(html, status_code=status_code)
         
         return wrapper
