@@ -37,7 +37,7 @@ def content_negotiation(renderer_class):
             redirect_url = result_dict.get('redirect_url', '')
 
             if redirect_url:
-                return RedirectResponse(redirect_url)
+                return RedirectResponse(redirect_url, status_code=303)
             
             # Handle different return types
             if isinstance(component_or_data, dict):
