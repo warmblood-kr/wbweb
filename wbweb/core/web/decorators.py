@@ -5,7 +5,7 @@ Provides reusable decorators for cross-cutting concerns like content negotiation
 """
 
 from functools import wraps
-from starlette.responses import HTMLResponse, RedirectResponse
+from starlette.responses import HTMLResponse, RedirectResponse, Response
 from starlette.requests import Request
 from .negotiation import ContentNegotiator
 
@@ -22,6 +22,7 @@ def content_negotiation(renderer_class):
         async def my_endpoint(request):
             return {'data': my_data, 'status_code': 200}
     """
+    
     def decorator(view_func):
         @wraps(view_func)
         async def wrapper(request):
@@ -37,6 +38,11 @@ def content_negotiation(renderer_class):
             redirect_url = result_dict.get('redirect_url', '')
 
             if redirect_url:
+                if request.headers.get('HX-Request'):
+                    response = Response(status_code=200)
+                    response.headers['HX-Location'] = redirect_url
+                    return response
+                    
                 return RedirectResponse(redirect_url, status_code=303)
             
             # Handle different return types
