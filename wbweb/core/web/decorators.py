@@ -40,7 +40,7 @@ def content_negotiation(renderer_class):
             if redirect_url:
                 if request.headers.get('HX-Request'):
                     response = Response(status_code=200)
-                    response.headers['HX-Location'] = redirect_url
+                    response.headers['HX-Redirect'] = redirect_url
                     return response
                     
                 return RedirectResponse(redirect_url, status_code=303)
