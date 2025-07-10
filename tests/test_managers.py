@@ -294,3 +294,165 @@ class TestManagerErrorHandling:
         # Verify rollback was called
         self.mock_session.rollback.assert_called_once()
         assert not self.mock_session.commit.called  # Should not commit on error
+
+
+class TestModelSaveMethod:
+    """Test Django-style save method on model instances."""
+    
+    def setup_method(self):
+        """Set up test fixtures."""
+        from wbweb.core.database.managers import configure_session_maker
+        
+        # Create mock session and session maker
+        self.mock_session = AsyncMock(spec=AsyncSession)
+        
+        # Create async context manager mock
+        self.mock_context_manager = AsyncMock()
+        self.mock_context_manager.__aenter__.return_value = self.mock_session
+        self.mock_context_manager.__aexit__.return_value = None
+        
+        self.mock_session_maker = Mock()
+        self.mock_session_maker.return_value = self.mock_context_manager
+        
+        # Configure the session maker
+        configure_session_maker(self.mock_session_maker)
+    
+    @pytest.mark.asyncio
+    async def test_save_new_instance(self):
+        """Test saving a new instance (INSERT via merge)."""
+        from wbweb.core.database import Base
+        from sqlalchemy import Column, Integer, String
+        
+        # Create a test model class with save method
+        class SaveTestModel(Base):
+            __tablename__ = 'test_save_new'
+            id = Column(Integer, primary_key=True)
+            name = Column(String(50))
+            
+            def __init__(self, **kwargs):
+                for key, value in kwargs.items():
+                    setattr(self, key, value)
+        
+        # Create new instance
+        instance = SaveTestModel(name="Test Item")
+        
+        # Mock merge to return the instance with ID
+        merged_instance = SaveTestModel(id=1, name="Test Item")
+        self.mock_session.merge.return_value = merged_instance
+        
+        # Save the instance
+        await instance.save()
+        
+        # Verify session operations
+        self.mock_session.merge.assert_called_once_with(instance)
+        self.mock_session.flush.assert_called_once()
+        self.mock_session.commit.assert_called_once()
+        
+        # Verify the instance was updated with merged values
+        assert instance.id == 1
+        assert instance.name == "Test Item"
+    
+    @pytest.mark.asyncio
+    async def test_save_existing_instance(self):
+        """Test saving an existing instance (UPDATE via merge)."""
+        from wbweb.core.database import Base
+        from sqlalchemy import Column, Integer, String
+        
+        # Create a test model class with save method
+        class SaveTestModel(Base):
+            __tablename__ = 'test_save_existing'
+            id = Column(Integer, primary_key=True)
+            name = Column(String(50))
+            
+            def __init__(self, **kwargs):
+                for key, value in kwargs.items():
+                    setattr(self, key, value)
+        
+        # Create existing instance (with ID)
+        instance = SaveTestModel(id=1, name="Original Name")
+        instance.name = "Updated Name"
+        
+        # Mock merge to return the updated instance
+        merged_instance = SaveTestModel(id=1, name="Updated Name")
+        self.mock_session.merge.return_value = merged_instance
+        
+        # Save the instance
+        await instance.save()
+        
+        # Verify session operations
+        self.mock_session.merge.assert_called_once_with(instance)
+        self.mock_session.flush.assert_called_once()
+        self.mock_session.commit.assert_called_once()
+        
+        # Verify the instance was updated with merged values
+        assert instance.id == 1
+        assert instance.name == "Updated Name"
+    
+    @pytest.mark.asyncio
+    async def test_save_rollback_on_exception(self):
+        """Test that session is rolled back on exception during save."""
+        from wbweb.core.database import Base
+        from sqlalchemy import Column, Integer, String
+        
+        # Create a test model class with save method
+        class SaveTestModel(Base):
+            __tablename__ = 'test_save_rollback'
+            id = Column(Integer, primary_key=True)
+            name = Column(String(50))
+            
+            def __init__(self, **kwargs):
+                for key, value in kwargs.items():
+                    setattr(self, key, value)
+        
+        # Create instance
+        instance = SaveTestModel(name="Test Item")
+        
+        # Make merge raise an exception
+        self.mock_session.merge.side_effect = Exception("Database error")
+        
+        # Save should raise exception and rollback
+        with pytest.raises(Exception, match="Database error"):
+            await instance.save()
+        
+        # Verify rollback was called
+        self.mock_session.rollback.assert_called_once()
+        assert not self.mock_session.commit.called  # Should not commit on error
+    
+    @pytest.mark.asyncio
+    async def test_save_with_multiple_columns(self):
+        """Test saving instance with multiple column updates."""
+        from wbweb.core.database import Base
+        from sqlalchemy import Column, Integer, String, Boolean
+        
+        # Create a test model class with multiple columns
+        class MultiColumnModel(Base):
+            __tablename__ = 'test_save_multi_cols'
+            id = Column(Integer, primary_key=True)
+            name = Column(String(50))
+            active = Column(Boolean)
+            count = Column(Integer)
+            
+            def __init__(self, **kwargs):
+                for key, value in kwargs.items():
+                    setattr(self, key, value)
+        
+        # Create instance with multiple values
+        instance = MultiColumnModel(id=1, name="Test", active=True, count=5)
+        
+        # Mock merge to return updated instance
+        merged_instance = MultiColumnModel(id=1, name="Test", active=True, count=5)
+        self.mock_session.merge.return_value = merged_instance
+        
+        # Save the instance
+        await instance.save()
+        
+        # Verify session operations
+        self.mock_session.merge.assert_called_once_with(instance)
+        self.mock_session.flush.assert_called_once()
+        self.mock_session.commit.assert_called_once()
+        
+        # Verify all column values were updated
+        assert instance.id == 1
+        assert instance.name == "Test"
+        assert instance.active == True
+        assert instance.count == 5

@@ -6,7 +6,7 @@ Provides base classes for all database models with automatic manager setup.
 
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase
-from .managers import Manager
+from .managers import Manager, with_session
 
 
 class BaseMeta(type(DeclarativeBase)):
@@ -36,4 +36,15 @@ class BaseMeta(type(DeclarativeBase)):
 
 class Base(AsyncAttrs, DeclarativeBase, metaclass=BaseMeta):
     """Base class for all SQLAlchemy models with Django-style manager setup."""
-    pass
+    
+    @with_session
+    async def save(self):
+        """
+        Django-style save method for model instances.
+        Uses SQLAlchemy's merge() which automatically handles both INSERT and UPDATE.
+        """
+        merged = await self._session.merge(self)
+        await self._session.flush()
+        # Update self with merged values to reflect any DB changes
+        for attr_name in self.__table__.columns.keys():
+            setattr(self, attr_name, getattr(merged, attr_name))
