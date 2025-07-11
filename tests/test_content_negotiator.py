@@ -1,5 +1,5 @@
 """
-Test ContentNegotiator extraction and functionality.
+Test content negotiation functionality via get_preferred_format.
 """
 
 class MockRequest:
@@ -12,28 +12,17 @@ class MockRequest:
         return self.headers.get(key, default)
 
 
-class TestContentNegotiator:
-    """Test ContentNegotiator functionality."""
+class TestContentNegotiation:
+    """Test content negotiation functionality."""
     
-    def test_import_works(self):
-        """Test that ContentNegotiator can be imported."""
-        from wbweb.core.web import ContentNegotiator
-        assert ContentNegotiator is not None
+    def test_get_preferred_format_json(self):
+        """Test JSON format detection via Accept header."""
+        from wbweb.core.templates.renderers import get_preferred_format
         
-    def test_package_level_import(self):
-        """Test importing from main package."""
-        from wbweb import ContentNegotiator
-        assert ContentNegotiator is not None
-        
-    def test_is_api_request_with_api_header(self):
-        """Test API client detection via x-api-client header."""
-        from wbweb.core.web import ContentNegotiator
-        
-        # Mock request with API header
         class MockHeaders:
             def get(self, key, default=None):
-                if key == 'x-api-client':
-                    return 'true'
+                if key == 'accept':
+                    return 'application/json'
                 return default
                 
         class MockRequest:
@@ -41,16 +30,16 @@ class TestContentNegotiator:
                 self.headers = MockHeaders()
         
         request = MockRequest()
-        assert ContentNegotiator.is_api_request(request) == True
+        assert get_preferred_format(request) == 'json'
         
-    def test_is_api_request_with_htmx_header(self):
-        """Test API client detection via hx-request header."""
-        from wbweb.core.web import ContentNegotiator
+    def test_get_preferred_format_html(self):
+        """Test HTML format detection via Accept header."""
+        from wbweb.core.templates.renderers import get_preferred_format
         
         class MockHeaders:
             def get(self, key, default=None):
-                if key == 'hx-request':
-                    return 'true'
+                if key == 'accept':
+                    return 'text/html'
                 return default
                 
         class MockRequest:
@@ -58,11 +47,45 @@ class TestContentNegotiator:
                 self.headers = MockHeaders()
         
         request = MockRequest()
-        assert ContentNegotiator.is_api_request(request) == True
+        assert get_preferred_format(request) == 'html'
         
-    def test_is_api_request_browser(self):
-        """Test browser client detection (no special headers)."""
-        from wbweb.core.web import ContentNegotiator
+    def test_get_preferred_format_xml(self):
+        """Test XML format detection via Accept header."""
+        from wbweb.core.templates.renderers import get_preferred_format
+        
+        class MockHeaders:
+            def get(self, key, default=None):
+                if key == 'accept':
+                    return 'application/xml'
+                return default
+                
+        class MockRequest:
+            def __init__(self):
+                self.headers = MockHeaders()
+        
+        request = MockRequest()
+        assert get_preferred_format(request) == 'xml'
+        
+    def test_get_preferred_format_raw(self):
+        """Test raw format detection via Accept header."""
+        from wbweb.core.templates.renderers import get_preferred_format
+        
+        class MockHeaders:
+            def get(self, key, default=None):
+                if key == 'accept':
+                    return 'application/raw'
+                return default
+                
+        class MockRequest:
+            def __init__(self):
+                self.headers = MockHeaders()
+        
+        request = MockRequest()
+        assert get_preferred_format(request) == 'raw'
+        
+    def test_get_preferred_format_default(self):
+        """Test default format when no Accept header."""
+        from wbweb.core.templates.renderers import get_preferred_format
         
         class MockHeaders:
             def get(self, key, default=None):
@@ -73,37 +96,4 @@ class TestContentNegotiator:
                 self.headers = MockHeaders()
         
         request = MockRequest()
-        assert ContentNegotiator.is_api_request(request) == False
-        
-    def test_get_renderer_returns_renderers(self):
-        """Test that get_renderer returns appropriate renderer types."""
-        from wbweb.core.web import ContentNegotiator
-        from wbweb.core.templates import UIRenderer, ApiRenderer
-        
-        # API request
-        class MockHeaders:
-            def get(self, key, default=None):
-                if key == 'x-api-client':
-                    return 'true'
-                return default
-                
-        class MockApiRequest:
-            def __init__(self):
-                self.headers = MockHeaders()
-        
-        api_request = MockApiRequest()
-        api_renderer = ContentNegotiator.get_renderer(api_request)
-        assert isinstance(api_renderer, ApiRenderer)
-        
-        # Browser request
-        class MockBrowserHeaders:
-            def get(self, key, default=None):
-                return default
-                
-        class MockBrowserRequest:
-            def __init__(self):
-                self.headers = MockBrowserHeaders()
-        
-        browser_request = MockBrowserRequest()
-        ui_renderer = ContentNegotiator.get_renderer(browser_request)
-        assert isinstance(ui_renderer, UIRenderer)
+        assert get_preferred_format(request) == 'html'

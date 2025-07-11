@@ -189,8 +189,8 @@ class TestRenderErrorResponse:
         """Test that API requests get simple message response."""
         from wbweb.core.web.decorators import render_error_response
         
-        # Mock API request
-        request = MockRequest(api_client='true')
+        # Mock API request using Accept header
+        request = MockRequest(accept_header='application/json')
         
         response = render_error_response(
             request=request,
@@ -221,12 +221,12 @@ class TestRenderErrorResponse:
         assert response.status_code == 500
         assert response.body.decode() == "<h1>500 - Server Error</h1><p>Something went wrong on our end.</p>"
     
-    def test_htmx_request_returns_api_message(self):
-        """Test that HTMX requests are treated as API requests."""
+    def test_xml_request_returns_api_message(self):
+        """Test that XML requests are treated as API requests."""
         from wbweb.core.web.decorators import render_error_response
         
-        # Mock HTMX request
-        request = MockRequest(hx_request='true')
+        # Mock XML request using Accept header
+        request = MockRequest(accept_header='application/xml')
         
         response = render_error_response(
             request=request,

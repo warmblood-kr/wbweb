@@ -9,6 +9,22 @@ from starlette.requests import Request
 from .hiccup import HiccupRenderer, HiccupTree
 
 
+def get_preferred_format(request: Request) -> str:
+    """Determine preferred response format from Accept header."""
+    accept = request.headers.get('accept', '')
+    
+    if 'application/json' in accept:
+        return 'json'
+    elif 'text/html' in accept:
+        return 'html'
+    elif 'application/xml' in accept:
+        return 'xml'
+    elif 'application/raw' in accept:
+        return 'raw'
+    else:
+        return 'html'  # default
+
+
 class DefaultRenderer:
     """Base renderer that handles Accept header content negotiation."""
     
