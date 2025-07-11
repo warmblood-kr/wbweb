@@ -4,6 +4,7 @@ Decorators for web layer framework.
 Provides reusable decorators for cross-cutting concerns like content negotiation.
 """
 
+import warnings
 from functools import wraps
 from starlette.responses import HTMLResponse, RedirectResponse, Response
 from starlette.requests import Request
@@ -88,5 +89,22 @@ def render_error_response(request: Request, api_message: str, ui_html: str, stat
         return HTMLResponse(ui_html, status_code=status_code)
 
 
-# Backward compatibility alias
-content_negotiation = renderer
+def content_negotiation(renderer_class):
+    """
+    DEPRECATED: Use @renderer decorator instead.
+    
+    This decorator is deprecated and will be removed in a future version.
+    Use @renderer(renderer_class) instead.
+    
+    Args:
+        renderer_class: A class that inherits from DefaultRenderer
+    
+    Returns:
+        The same decorator as @renderer but with deprecation warning
+    """
+    warnings.warn(
+        "@content_negotiation is deprecated. Use @renderer instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
+    return renderer(renderer_class)
