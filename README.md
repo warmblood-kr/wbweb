@@ -49,7 +49,7 @@ users = await User.objects.filter(active=True).all()
 ## Core Features
 
 - **🎨 Hiccup HTML Rendering**: Python data structures → HTML
-- **🔄 Content Negotiation**: Automatic API/UI client detection  
+- **🔄 Renderer Integration**: Clean view-to-renderer wiring with automatic content negotiation  
 - **📊 Django-Style ORM**: Familiar SQLAlchemy patterns with async support
 - **⚙️ Configurable**: Environment-aware configuration system
 - **📦 Minimal Dependencies**: Only Starlette + SQLAlchemy
@@ -66,7 +66,7 @@ pip install wbweb
 ```python
 from starlette.applications import Starlette
 from starlette.routing import Route
-from wbweb import content_negotiation, DefaultRenderer, configure_database
+from wbweb import renderer, DefaultRenderer, configure_database
 
 # Configure database
 configure_database(\"sqlite:///app.db\")
@@ -85,8 +85,8 @@ class HomeRenderer(DefaultRenderer):
     def render_api(self, **kwargs):
         return {'message': f\"Welcome {kwargs.get('name', 'Guest')}!\"}
 
-# Create endpoint with content negotiation
-@content_negotiation(HomeRenderer)
+# Create endpoint with renderer
+@renderer(HomeRenderer)
 async def home(request):
     return {'name': 'Developer'}
 
@@ -103,10 +103,9 @@ wbweb/
 ├── core/
 │   ├── templates/          # Hiccup rendering system
 │   │   ├── hiccup.py      # Core HTML renderer
-│   │   └── renderers.py   # Content negotiation renderers
+│   │   └── renderers.py   # Content negotiation and format detection
 │   ├── web/               # Web framework components  
-│   │   ├── negotiation.py # Client detection
-│   │   └── decorators.py  # Content negotiation decorator
+│   │   └── decorators.py  # @renderer decorator and error handling
 │   └── database/          # Django-style ORM
 │       ├── managers.py    # Active Record patterns
 │       ├── base.py        # Model base classes

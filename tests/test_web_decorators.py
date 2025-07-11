@@ -51,30 +51,30 @@ class TestWebDecoratorsImports:
     
     def test_import_from_web_module(self):
         """Test importing decorators from web module."""
-        from wbweb.core.web import content_negotiation, render_error_response
-        assert content_negotiation is not None
+        from wbweb.core.web import renderer, render_error_response
+        assert renderer is not None
         assert render_error_response is not None
         
     def test_import_from_main_package(self):
         """Test importing from main wbweb package."""
-        from wbweb import content_negotiation, render_error_response
-        assert content_negotiation is not None
+        from wbweb import renderer, render_error_response
+        assert renderer is not None
         assert render_error_response is not None
 
 
-class TestContentNegotiationDecorator:
-    """Test the content_negotiation decorator."""
+class TestRendererDecorator:
+    """Test the @renderer decorator."""
     
     @pytest.mark.asyncio
     async def test_decorator_with_json_response(self):
         """Test decorator handling JSON response from renderer."""
-        from wbweb.core.web.decorators import content_negotiation
+        from wbweb.core.web.decorators import renderer
         
         # Mock renderer that returns dict (JSON response)
         json_data = {'message': 'success', 'data': [1, 2, 3]}
         mock_renderer_class = lambda: MockRenderer(return_data=json_data)
         
-        @content_negotiation(mock_renderer_class)
+        @renderer(mock_renderer_class)
         async def test_view(request):
             return {'test_data': 'hello', 'status_code': 201}
         
@@ -93,13 +93,13 @@ class TestContentNegotiationDecorator:
     @pytest.mark.asyncio 
     async def test_decorator_with_html_component(self):
         """Test decorator handling HTML component from renderer."""
-        from wbweb.core.web.decorators import content_negotiation
+        from wbweb.core.web.decorators import renderer
         
         # Mock renderer that returns hiccup component
         component = ['div', {'class': 'test'}, 'Hello World']
         mock_renderer_class = lambda: MockRenderer(return_component=component)
         
-        @content_negotiation(mock_renderer_class)
+        @renderer(mock_renderer_class)
         async def test_view(request):
             return {'test_data': 'hello', 'status_code': 200}
         
@@ -125,11 +125,11 @@ class TestContentNegotiationDecorator:
     @pytest.mark.asyncio
     async def test_decorator_preserves_function_metadata(self):
         """Test that decorator preserves original function metadata."""
-        from wbweb.core.web.decorators import content_negotiation
+        from wbweb.core.web.decorators import renderer
         
         mock_renderer_class = lambda: MockRenderer()
         
-        @content_negotiation(mock_renderer_class)
+        @renderer(mock_renderer_class)
         async def test_view_with_docstring(request):
             """This is a test view function."""
             return {'data': 'test'}
@@ -141,7 +141,7 @@ class TestContentNegotiationDecorator:
     @pytest.mark.asyncio
     async def test_decorator_passes_request_data_to_renderer(self):
         """Test that decorator passes view result to renderer correctly."""
-        from wbweb.core.web.decorators import content_negotiation
+        from wbweb.core.web.decorators import renderer
         
         # Mock renderer to capture what gets passed to it
         calls = []
@@ -151,7 +151,7 @@ class TestContentNegotiationDecorator:
                 calls.append((request, kwargs))
                 return {'captured': True}
         
-        @content_negotiation(CapturingRenderer)
+        @renderer(CapturingRenderer)
         async def test_view(request):
             return {'user_id': 123, 'message': 'hello', 'status_code': 200}
         
@@ -167,11 +167,11 @@ class TestContentNegotiationDecorator:
     @pytest.mark.asyncio
     async def test_decorator_default_status_code(self):
         """Test that decorator uses default status code when not provided."""
-        from wbweb.core.web.decorators import content_negotiation
+        from wbweb.core.web.decorators import renderer
         
         mock_renderer_class = lambda: MockRenderer(return_data={'success': True})
         
-        @content_negotiation(mock_renderer_class)
+        @renderer(mock_renderer_class)
         async def test_view(request):
             return {'data': 'test'}  # No status_code provided
         
@@ -262,7 +262,7 @@ class TestDecoratorIntegration:
     @pytest.mark.asyncio
     async def test_decorator_works_with_actual_renderer_classes(self):
         """Test decorator integration with actual framework renderer classes."""
-        from wbweb.core.web.decorators import content_negotiation
+        from wbweb.core.web.decorators import renderer
         from wbweb.core.templates import DefaultRenderer
         
         # Create a test renderer class
@@ -273,7 +273,7 @@ class TestDecoratorIntegration:
             def render_api(self, **kwargs):
                 return ['span', {}, f"API: {kwargs.get('message', 'default')}"]
         
-        @content_negotiation(TestRenderer)
+        @renderer(TestRenderer)
         async def test_endpoint(request):
             return {'message': 'Hello World', 'status_code': 200}
         
@@ -298,13 +298,13 @@ class TestDecoratorErrorHandling:
     @pytest.mark.asyncio
     async def test_decorator_handles_renderer_exceptions(self):
         """Test that decorator properly handles exceptions from renderers."""
-        from wbweb.core.web.decorators import content_negotiation
+        from wbweb.core.web.decorators import renderer
         
         class BrokenRenderer:
             def render(self, request, **kwargs):
                 raise ValueError("Renderer error")
         
-        @content_negotiation(BrokenRenderer)
+        @renderer(BrokenRenderer)
         async def test_view(request):
             return {'data': 'test'}
         
@@ -317,11 +317,11 @@ class TestDecoratorErrorHandling:
     @pytest.mark.asyncio
     async def test_decorator_handles_view_exceptions(self):
         """Test that decorator properly handles exceptions from view functions."""
-        from wbweb.core.web.decorators import content_negotiation
+        from wbweb.core.web.decorators import renderer
         
         mock_renderer_class = lambda: MockRenderer()
         
-        @content_negotiation(mock_renderer_class)
+        @renderer(mock_renderer_class)
         async def broken_view(request):
             raise RuntimeError("View error")
         
