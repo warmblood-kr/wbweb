@@ -7,7 +7,7 @@ Provides reusable decorators for cross-cutting concerns like content negotiation
 from functools import wraps
 from starlette.responses import HTMLResponse, RedirectResponse, Response
 from starlette.requests import Request
-from .negotiation import ContentNegotiator
+from ..templates.renderers import get_preferred_format
 
 
 def content_negotiation(renderer_class):
@@ -80,7 +80,9 @@ def render_error_response(request: Request, api_message: str, ui_html: str, stat
     Returns:
         HTMLResponse with appropriate content based on client type
     """
-    if ContentNegotiator.is_api_request(request):
+    preferred_format = get_preferred_format(request)
+    
+    if preferred_format in ['json', 'xml', 'raw']:
         return HTMLResponse(api_message, status_code=status_code)
     else:
         return HTMLResponse(ui_html, status_code=status_code)
