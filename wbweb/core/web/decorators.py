@@ -85,8 +85,8 @@ def render_error_response(request: Request, api_message: str, ui_html: str, stat
     
     if preferred_format in ['json', 'xml', 'raw']:
         return HTMLResponse(api_message, status_code=status_code)
-    else:
-        return HTMLResponse(ui_html, status_code=status_code)
+    
+    return HTMLResponse(ui_html, status_code=status_code)
 
 
 def content_negotiation(renderer_class):

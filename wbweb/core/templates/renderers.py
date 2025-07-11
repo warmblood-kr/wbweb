@@ -30,30 +30,15 @@ class DefaultRenderer:
     
     def render(self, request: Request, **kwargs) -> Union[HiccupTree, Dict[str, Any]]:
         """Main entry point - delegates based on Accept header with UI as default."""
-        accept = request.headers.get('accept', '')
+        format_to_render_func = {
+            'json': lambda: self.component_to_json(self.render_api(**kwargs)),
+            'html': lambda: self.render_ui(**kwargs),
+            'xml': lambda: self.render_api(**kwargs),
+            'raw': lambda: self.render_raw(**kwargs),
+        }
         
-        # Check for backward compatibility API indicators
-        is_legacy_api_client = (
-            request.headers.get('x-api-client') is not None or 
-            request.headers.get('hx-request') is not None
-        )
-        
-        if 'application/json' in accept:
-            # Always use component-based JSON for consistency
-            component = self.render_api(**kwargs)
-            return self.component_to_json(component)
-        elif 'text/html' in accept:
-            # Browsers requesting HTML (primary preference)
-            return self.render_ui(**kwargs)
-        elif 'application/xml' in accept or is_legacy_api_client:
-            # XML/HTML components for API clients (including legacy headers)
-            return self.render_api(**kwargs)
-        elif 'application/raw' in accept:
-            # Raw/identity renderer for debugging
-            return self.render_raw(**kwargs)
-        else:
-            # Default to UI rendering (no Accept header, etc.)
-            return self.render_ui(**kwargs)
+        _format = get_preferred_format(request)
+        return format_to_render_func[_format]()
     
     def render_ui(self, **kwargs) -> HiccupTree:
         """Override in subclasses for full page HTML."""
