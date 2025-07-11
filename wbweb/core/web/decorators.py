@@ -10,15 +10,15 @@ from starlette.requests import Request
 from ..templates.renderers import get_preferred_format
 
 
-def content_negotiation(renderer_class):
+def renderer(renderer_class):
     """
-    Decorator that uses a domain-specific renderer for content negotiation.
+    Decorator that wires a view function to a domain-specific renderer.
     
     Args:
         renderer_class: A class that inherits from DefaultRenderer
     
     Usage:
-        @content_negotiation(MyRenderer)
+        @renderer(MyRenderer)
         async def my_endpoint(request):
             return {'data': my_data, 'status_code': 200}
     """
@@ -86,3 +86,7 @@ def render_error_response(request: Request, api_message: str, ui_html: str, stat
         return HTMLResponse(api_message, status_code=status_code)
     else:
         return HTMLResponse(ui_html, status_code=status_code)
+
+
+# Backward compatibility alias
+content_negotiation = renderer
