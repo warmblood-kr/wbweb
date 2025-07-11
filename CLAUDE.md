@@ -72,3 +72,40 @@ This is an **ongoing multi-session extraction project**. The goal is to extract 
 - **Component mapping**: Check task-specific docs for extraction details
 
 The extraction follows a phased approach focusing on minimal dependencies and clean separation of concerns.
+
+## Additional Development Principles (Lessons Learned)
+
+### 1. **Naming Audit During Refactoring**
+**Rule**: After removing/changing core components, audit all related naming for accuracy.
+
+**Implementation**:
+- Ask: "Does this name still describe what it does?"
+- Consider user perspective: "What would I expect this to be called?"
+- Update names to match current reality, not legacy context
+
+**Example**: After removing `ContentNegotiator`, `@content_negotiation` became misleading. `@renderer` better describes wiring views to renderers.
+
+### 2. **Standard Deprecation Practices**
+**Rule**: Use `warnings.warn()` with `DeprecationWarning` instead of simple aliases.
+
+```python
+# ❌ BAD: Silent alias
+old_function = new_function
+
+# ✅ GOOD: Educational deprecation
+def old_function(*args, **kwargs):
+    warnings.warn("Use new_function instead.", DeprecationWarning, stacklevel=2)
+    return new_function(*args, **kwargs)
+```
+
+**Benefits**: Users get migration guidance, follows Python standards, enables future removal.
+
+### 3. **Documentation as Implementation**
+**Rule**: Update documentation immediately as part of implementation, not as afterthoughts.
+
+**Implementation**:
+- Update README examples in same PR as code changes
+- Keep package structure docs current with code
+- Update all examples to use new preferred patterns
+
+**Why**: Users need immediate guidance on new patterns; documentation drift blocks adoption.
