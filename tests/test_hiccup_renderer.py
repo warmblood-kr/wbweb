@@ -40,3 +40,33 @@ class TestHiccupRenderer:
         renderer = HiccupRenderer()
         result = renderer.render(["p", {}, "<script>alert('xss')</script>"])
         assert result == "<p>&lt;script&gt;alert(&#x27;xss&#x27;)&lt;/script&gt;</p>"
+
+    def test_raw_html_not_escaped(self):
+        """Test that raw HTML content is not escaped."""
+        from wbweb.core.templates.hiccup import raw
+        renderer = HiccupRenderer()
+        result = renderer.render(["div", {}, raw("<em>Hello</em> <strong>World</strong>")])
+        assert result == "<div><em>Hello</em> <strong>World</strong></div>"
+
+    def test_raw_html_mixed_with_escaped_content(self):
+        """Test mixing raw HTML with regular escaped content."""
+        from wbweb.core.templates.hiccup import raw
+        renderer = HiccupRenderer()
+        result = renderer.render([
+            "div", {},
+            "Safe text: <script>",
+            raw("<em>Raw HTML</em>"),
+            " & more safe text"
+        ])
+        assert result == "<div>Safe text: &lt;script&gt;<em>Raw HTML</em> &amp; more safe text</div>"
+
+    def test_raw_html_in_attributes_still_escaped(self):
+        """Test that raw HTML in attributes is still escaped for security."""
+        from wbweb.core.templates.hiccup import raw
+        renderer = HiccupRenderer()
+        # Attributes should still be escaped even if we use raw for content
+        result = renderer.render([
+            "div", {"title": "<script>alert('xss')</script>"}, 
+            raw("<em>Safe raw content</em>")
+        ])
+        assert result == '<div title="&lt;script&gt;alert(&#x27;xss&#x27;)&lt;/script&gt;"><em>Safe raw content</em></div>'

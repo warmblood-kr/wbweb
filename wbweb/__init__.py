@@ -13,6 +13,7 @@ __version__ = "0.1.0"
 
 # Main exports for convenience
 from wbweb.core.templates import HiccupRenderer, HiccupTree, DefaultRenderer, UIRenderer, ApiRenderer
+from wbweb.core.templates.hiccup import raw
 from wbweb.core.web import renderer, content_negotiation, render_error_response
 from wbweb.core.database import (
     Manager, configure_session_maker, Base, BaseMeta,
@@ -21,7 +22,7 @@ from wbweb.core.database import (
 )
 
 __all__ = [
-    "HiccupRenderer", "HiccupTree", "DefaultRenderer", "UIRenderer", "ApiRenderer", 
+    "HiccupRenderer", "HiccupTree", "DefaultRenderer", "UIRenderer", "ApiRenderer", "raw",
     "renderer", "content_negotiation", "render_error_response",
     "Manager", "configure_session_maker", "Base", "BaseMeta",
     "configure_database", "get_engine", "get_async_session_maker", 

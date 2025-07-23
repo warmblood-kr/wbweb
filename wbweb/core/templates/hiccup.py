@@ -9,11 +9,39 @@ from typing import Any, Dict, List, Union
 HiccupTree = Union[str, List[Any]]
 
 
+class _RawHTML:
+    """Internal wrapper for raw HTML content that should not be escaped.
+    
+    This class should not be instantiated directly. Use the raw() function instead.
+    """
+    
+    def __init__(self, content: str):
+        self.content = str(content)
+
+
+def raw(content: str) -> _RawHTML:
+    """Mark content as raw HTML that should not be escaped.
+    
+    Usage:
+        ['div', {}, raw("<em>This will not be escaped</em>")]
+    
+    Args:
+        content: HTML content that should be rendered without escaping
+        
+    Returns:
+        A special object that the HiccupRenderer recognizes as raw content
+    """
+    return _RawHTML(content)
+
+
 class HiccupRenderer:
     """Converts homoiconic data structures to HTML strings."""
     
     def render(self, hiccup_tree: HiccupTree) -> str:
         """Convert hiccup data structure to HTML string."""
+        if isinstance(hiccup_tree, _RawHTML):
+            return hiccup_tree.content
+        
         if isinstance(hiccup_tree, str):
             return self._escape_html(hiccup_tree)
         
