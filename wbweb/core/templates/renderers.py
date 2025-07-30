@@ -40,15 +40,15 @@ class DefaultRenderer:
         _format = get_preferred_format(request)
         return format_to_render_func[_format]()
     
-    def render_ui(self, **kwargs) -> HiccupTree:
+    def render_ui(self, request: Request, **kwargs) -> HiccupTree:
         """Override in subclasses for full page HTML."""
         raise NotImplementedError("Subclasses must implement render_ui")
         
-    def render_api(self, **kwargs) -> HiccupTree:
+    def render_api(self, request: Request, **kwargs) -> HiccupTree:
         """Default: fall back to UI rendering if no specific API version needed."""
         return self.render_ui(**kwargs)
         
-    def render_raw(self, **kwargs) -> str:
+    def render_raw(self, request: Request, **kwargs) -> str:
         """Identity renderer for debugging - returns raw data as string."""
         import json
         return json.dumps(kwargs, indent=2, default=str)
