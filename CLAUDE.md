@@ -109,3 +109,44 @@ def old_function(*args, **kwargs):
 - Update all examples to use new preferred patterns
 
 **Why**: Users need immediate guidance on new patterns; documentation drift blocks adoption.
+
+### 4. **Dependency Injection Over Mock Patching**
+**Rule**: Prefer dependency injection for testability rather than complex mock patching.
+
+**Implementation**:
+```python
+# ❌ BAD: Complex mock patching
+@patch('module.get_session_maker')
+@patch('module.engine_factory.create_engine') 
+@patch('sqlalchemy.ext.asyncio.async_sessionmaker')
+async def test_method(self, mock_session, mock_engine, mock_get_session):
+    # Complex setup...
+
+# ✅ GOOD: Simple dependency injection
+async def test_method(self):
+    mock_session = create_mock_session()
+    await service.method(..., session=mock_session)
+```
+
+**Benefits**: Simpler tests, clearer interfaces, easier maintenance, better separation of concerns.
+
+### 5. **Cross-Repository Security Awareness**
+**Rule**: Consider repository visibility and information sensitivity when planning and documenting.
+
+**Implementation**:
+- **Private repos**: Can contain internal details, Korean language, sensitive architecture info
+- **Public repos**: English only, generic technical specs, no proprietary information
+- **Cross-linking**: Link public issues to private planning, but sanitize public content
+
+**Example**: Internal planning in private repo issue, clean technical specs in public repo issue.
+
+### 6. **GitHub Issues for Project Planning**
+**Rule**: Use GitHub issues for planning rather than repository files for collaborative projects.
+
+**Implementation**:
+- **Large project planning**: Create comprehensive GitHub issues with implementation details
+- **Cross-repository coordination**: Link related issues across repositories  
+- **Phase-based execution**: Break large projects into phases with separate issues
+- **Progress tracking**: Use issue checkboxes for progress visibility
+
+**Benefits**: Team collaboration, clean repositories, discoverable planning, progress tracking.
