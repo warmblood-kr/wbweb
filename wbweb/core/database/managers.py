@@ -53,7 +53,8 @@ class Manager:
         
         Similar to Django's Model.objects.create(**kwargs)
         """
-        async with get_session() as session:
+        session = await get_session()
+        async with session:
             instance = self.model_class(**kwargs)
             session.add(instance)
             await session.flush()  # Get ID without committing transaction
@@ -68,7 +69,8 @@ class Manager:
         Similar to Django's Model.objects.get(**kwargs)
         Returns None if not found (unlike Django which raises exception).
         """
-        async with get_session() as session:
+        session = await get_session()
+        async with session:
             stmt = select(self.model_class)
             for key, value in kwargs.items():
                 stmt = stmt.where(getattr(self.model_class, key) == value)
@@ -82,7 +84,8 @@ class Manager:
         
         Similar to Django's Model.objects.filter(**kwargs).all()
         """
-        async with get_session() as session:
+        session = await get_session()
+        async with session:
             stmt = select(self.model_class)
             for key, value in kwargs.items():
                 stmt = stmt.where(getattr(self.model_class, key) == value)
@@ -96,7 +99,8 @@ class Manager:
         
         Similar to Django's Model.objects.all()
         """
-        async with get_session() as session:
+        session = await get_session()
+        async with session:
             stmt = select(self.model_class)
             result = await session.execute(stmt)
             return list(result.scalars().all())
