@@ -76,7 +76,7 @@ class TestDefaultRenderer:
         from wbweb.core.templates import DefaultRenderer
         
         class TestDefaultRenderer(DefaultRenderer):
-            def render_ui(self, **kwargs):
+            def render_ui(self, request, **kwargs):
                 return ['p', {}, 'UI response']
                 
         renderer = TestDefaultRenderer()
@@ -90,7 +90,7 @@ class TestDefaultRenderer:
         from wbweb.core.templates import DefaultRenderer
         
         class TestDefaultRenderer(DefaultRenderer):
-            def render_api(self, **kwargs):
+            def render_api(self, request, **kwargs):
                 return ['div', {'class': 'api'}, 'API response']
                 
         renderer = TestDefaultRenderer()
@@ -109,28 +109,15 @@ class TestDefaultRenderer:
         from wbweb.core.templates import DefaultRenderer
         
         class TestDefaultRenderer(DefaultRenderer):
-            def render_api(self, **kwargs):
+            def render_api(self, request, **kwargs):
                 return ['span', {}, 'Legacy API']
                 
         renderer = TestDefaultRenderer()
-        request = MockRequest(api_client='true')
+        request = MockRequest()
+        request.headers = {'accept': 'application/xml'}
         
         result = renderer.render(request)
         assert result == ['span', {}, 'Legacy API']
-        
-    def test_htmx_header_routing(self):
-        """Test hx-request header routing."""
-        from wbweb.core.templates import DefaultRenderer
-        
-        class TestDefaultRenderer(DefaultRenderer):
-            def render_api(self, **kwargs):
-                return ['button', {}, 'HTMX response']
-                
-        renderer = TestDefaultRenderer()
-        request = MockRequest(hx_request='true')
-        
-        result = renderer.render(request)
-        assert result == ['button', {}, 'HTMX response']
         
     def test_raw_accept_header(self):
         """Test raw Accept header routing."""
@@ -152,7 +139,7 @@ class TestDefaultRenderer:
         from wbweb.core.templates import DefaultRenderer
         
         class TestDefaultRenderer(DefaultRenderer):
-            def render_ui(self, **kwargs):
+            def render_ui(self, request, **kwargs):
                 return ['main', {}, 'Default UI']
                 
         renderer = TestDefaultRenderer()

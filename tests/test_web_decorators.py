@@ -267,10 +267,10 @@ class TestDecoratorIntegration:
         
         # Create a test renderer class
         class TestRenderer(DefaultRenderer):
-            def render_ui(self, **kwargs):
+            def render_ui(self, request, **kwargs):
                 return ['div', {}, f"UI: {kwargs.get('message', 'default')}"]
             
-            def render_api(self, **kwargs):
+            def render_api(self, request, **kwargs):
                 return ['span', {}, f"API: {kwargs.get('message', 'default')}"]
         
         @renderer(TestRenderer)
