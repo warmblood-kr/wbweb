@@ -62,3 +62,8 @@ test = [
 where = ["."]
 include = ["wbweb*"]
 exclude = ["tests*", "analysis*", "docs*"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.12.7",
+]

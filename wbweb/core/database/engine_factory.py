@@ -23,27 +23,50 @@ def is_async_url(url: str) -> bool:
 
 
 class DefaultEngineFactory:
-    """Default engine factory"""
+    """Default engine factory with connection caching"""
+
+    def __init__(self):
+        self._engines = {}
 
     def create_engine(self, database_url):
-        if is_async_url(database_url):
-            return create_async_engine(database_url)
-        return sa.create_engine(database_url)
+        """Create or return cached engine - reuses connection pools"""
+        if database_url in self._engines:
+            return self._engines[database_url]
+        
+        # Choose function based on URL, apply same kwargs
+        engine_func = create_async_engine if is_async_url(database_url) else sa.create_engine
+        self._engines[database_url] = engine_func(
+            database_url,
+            pool_size=5,
+            max_overflow=10,
+            pool_pre_ping=True
+        )
+        return self._engines[database_url]
 
 
 class RdsIamEngineFactory:
-    """RDS IAM engine factory"""
+    """RDS IAM engine factory with connection caching"""
+
+    def __init__(self):
+        self._engines = {}
 
     def create_engine(self, database_url):
+        """Create or return cached RDS IAM engine"""
+        if database_url in self._engines:
+            return self._engines[database_url]
+        
         import boto3
-
         engine_url = sa.engine.url.make_url(database_url)
         
-        # Choose between async and sync engine based on URL
-        if is_async_url(database_url):
-            engine = create_async_engine(f'{engine_url.drivername}:///')
-        else:
-            engine = sa.create_engine(f'{engine_url.drivername}:///')
+        # Choose function based on URL, apply same kwargs
+        engine_func = create_async_engine if is_async_url(database_url) else sa.create_engine
+        engine = engine_func(
+            f'{engine_url.drivername}:///',
+            pool_size=10,
+            max_overflow=20,
+            pool_recycle=900,   # TODO: Issue #12 - Verify IAM token vs connection lifecycle
+            pool_pre_ping=True
+        )
 
         @sa.event.listens_for(engine.sync_engine if hasattr(engine, 'sync_engine') else engine, 'do_connect')
         def provide_token(dialect, conn_rec, cargs, cparams):
@@ -64,15 +87,22 @@ class RdsIamEngineFactory:
             if engine_url.database:
                 cparams['database'] = engine_url.database
         
+        self._engines[database_url] = engine
         return engine
 
 
 class SecretManagerEngineFactory:
-    """AWS SecretManager engine factory"""
+    """AWS SecretManager engine factory with connection caching"""
+
+    def __init__(self):
+        self._engines = {}
 
     def create_engine(self, database_url):
+        """Create or return cached SecretManager engine"""
+        if database_url in self._engines:
+            return self._engines[database_url]
+        
         import boto3
-
         engine_url = sa.engine.url.make_url(database_url)
         secret_arn = engine_url.query.get('secret_arn')
 
@@ -90,10 +120,17 @@ class SecretManagerEngineFactory:
             database=engine_url.database
         )
         
-        # Use async engine for async URLs
-        if is_async_url(str(clean_url)):
-            return create_async_engine(clean_url)
-        return sa.create_engine(clean_url)
+        # Choose function based on URL, apply same kwargs
+        engine_func = create_async_engine if is_async_url(str(clean_url)) else sa.create_engine
+        engine = engine_func(
+            clean_url,
+            pool_size=5,
+            max_overflow=10,
+            pool_pre_ping=True
+        )
+        
+        self._engines[database_url] = engine
+        return engine
 
 
 # Global configurable engine factory instance
