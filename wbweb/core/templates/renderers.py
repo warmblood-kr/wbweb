@@ -31,10 +31,10 @@ class DefaultRenderer:
     def render(self, request: Request, **kwargs) -> Union[HiccupTree, Dict[str, Any]]:
         """Main entry point - delegates based on Accept header with UI as default."""
         format_to_render_func = {
-            'json': lambda: self.component_to_json(self.render_api(**kwargs)),
-            'html': lambda: self.render_ui(**kwargs),
-            'xml': lambda: self.render_api(**kwargs),
-            'raw': lambda: self.render_raw(**kwargs),
+            'json': lambda: self.component_to_json(self.render_api(request, **kwargs)),
+            'html': lambda: self.render_ui(request, **kwargs),
+            'xml': lambda: self.render_api(request, **kwargs),
+            'raw': lambda: self.render_raw(request, **kwargs),
         }
         
         _format = get_preferred_format(request)
