@@ -66,10 +66,10 @@ pip install wbweb
 ```python
 from starlette.applications import Starlette
 from starlette.routing import Route
-from wbweb import renderer, DefaultRenderer, configure_database
+from wbweb import renderer, DefaultRenderer
 
-# Configure database
-configure_database(\"sqlite:///app.db\")
+# Database configuration is handled via Django-style settings
+# See Database Usage section for details
 
 # Create a renderer
 class HomeRenderer(DefaultRenderer):
@@ -179,12 +179,13 @@ routes = [
 
 ## Database Usage
 
-```python
-from wbweb import Base, Manager, configure_database
-from sqlalchemy import Column, Integer, String
+wbweb uses a **Django-style configuration system** with advanced engine factory support:
 
-# Configure database connection
-configure_database(\"postgresql://user:pass@localhost/db\")
+### Basic Model Definition
+
+```python
+from wbweb import Base, Manager
+from sqlalchemy import Column, Integer, String
 
 # Define models with Django-style managers
 class User(Base):
@@ -200,6 +201,40 @@ class User(Base):
 # Use Django-style ORM
 user = await User.objects.create(name='John', email='john@example.com')
 users = await User.objects.filter(active=True).all()
+```
+
+### Database Configuration
+
+wbweb uses **Django-style settings** with advanced engine factory support:
+
+```python
+# Set your settings module via environment variable
+import os
+os.environ['WBWEB_SETTINGS_MODULE'] = 'myproject.settings'
+
+# In your settings.py file (only define what you need):
+DATABASE_URL = "postgresql+asyncpg://user:pass@localhost/db"
+
+# Advanced: Use different engine factories
+DATABASE_ENGINE_FACTORY = 'wbweb.core.database.engine_factory.DefaultEngineFactory'
+
+# For AWS RDS IAM authentication:
+# DATABASE_ENGINE_FACTORY = 'wbweb.core.database.engine_factory.RdsIamEngineFactory'
+```
+
+### Direct Engine Factory Usage
+
+For advanced use cases, use the engine factory directly:
+
+```python
+from wbweb.core.database.engine_factory import engine_factory
+
+# Create database engine
+engine = engine_factory.create_engine("postgresql+asyncpg://user:pass@localhost/db")
+
+# Create session maker
+from sqlalchemy.ext.asyncio import async_sessionmaker
+session_maker = async_sessionmaker(engine, expire_on_commit=False)
 ```
 
 ## Development
