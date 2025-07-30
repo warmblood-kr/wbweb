@@ -61,33 +61,8 @@ def get_engine() -> AsyncEngine:
     
     if _engine is None:
         config = get_database_config()
-        database_url = config['database_url']
-        debug = config['debug']
-        engine_kwargs = config.get('engine_kwargs', {})
-        
-        # Configure engine based on database type and environment
-        connect_args = {}
-        echo = debug  # Echo SQL queries in debug mode
-        
-        # SQLite-specific configuration
-        if "sqlite" in database_url:
-            connect_args = {"check_same_thread": False}
-        
-        # PostgreSQL-specific configuration  
-        elif "postgresql" in database_url:
-            # Add any PostgreSQL-specific settings here
-            pass
-        
-        # Merge connect_args with any provided engine_kwargs
-        final_kwargs = {
-            'echo': echo,
-            'connect_args': connect_args,
-            **engine_kwargs
-        }
-        
-        # Use engine factory for enhanced database engine creation
         from .engine_factory import engine_factory
-        _engine = engine_factory.create_engine(database_url)
+        _engine = engine_factory.create_engine(config['database_url'])
     
     return _engine
 

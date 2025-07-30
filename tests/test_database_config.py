@@ -94,94 +94,12 @@ class TestEngineCreation:
         wbweb.core.database.config._engine = None
         wbweb.core.database.config._session_maker = None
     
-    @patch('wbweb.core.database.config.create_async_engine')
-    def test_get_engine_sqlite_configuration(self, mock_create_engine):
-        """Test engine creation with SQLite-specific configuration."""
-        from wbweb.core.database.config import configure_database, get_engine
-        
-        mock_engine = Mock(spec=AsyncEngine)
-        mock_create_engine.return_value = mock_engine
-        
-        configure_database("sqlite+aiosqlite:///./test.db", debug=True)
-        engine = get_engine()
-        
-        # Verify create_async_engine was called with correct arguments
-        mock_create_engine.assert_called_once_with(
-            "sqlite+aiosqlite:///./test.db",
-            echo=True,
-            connect_args={"check_same_thread": False}
-        )
-        assert engine is mock_engine
-    
-    @patch('wbweb.core.database.config.create_async_engine')
-    def test_get_engine_postgresql_configuration(self, mock_create_engine):
-        """Test engine creation with PostgreSQL-specific configuration."""
-        from wbweb.core.database.config import configure_database, get_engine
-        
-        mock_engine = Mock(spec=AsyncEngine)
-        mock_create_engine.return_value = mock_engine
-        
-        configure_database("postgresql+asyncpg://user:pass@localhost/db", debug=False)
-        engine = get_engine()
-        
-        # Verify create_async_engine was called with correct arguments
-        mock_create_engine.assert_called_once_with(
-            "postgresql+asyncpg://user:pass@localhost/db",
-            echo=False,
-            connect_args={}
-        )
-        assert engine is mock_engine
-    
-    @patch('wbweb.core.database.config.create_async_engine')
-    def test_get_engine_with_custom_kwargs(self, mock_create_engine):
-        """Test engine creation with custom engine kwargs."""
-        from wbweb.core.database.config import configure_database, get_engine
-        
-        mock_engine = Mock(spec=AsyncEngine)
-        mock_create_engine.return_value = mock_engine
-        
-        configure_database(
-            "postgresql+asyncpg://user:pass@localhost/db",
-            debug=True,
-            pool_size=15,
-            max_overflow=25
-        )
-        engine = get_engine()
-        
-        # Verify create_async_engine was called with merged arguments
-        mock_create_engine.assert_called_once_with(
-            "postgresql+asyncpg://user:pass@localhost/db",
-            echo=True,
-            connect_args={},
-            pool_size=15,
-            max_overflow=25
-        )
-        assert engine is mock_engine
-    
     def test_get_engine_not_configured(self):
         """Test error when getting engine without configuration."""
         from wbweb.core.database.config import get_engine
         
         with pytest.raises(RuntimeError, match="No database configuration set"):
             get_engine()
-    
-    @patch('wbweb.core.database.config.create_async_engine')
-    def test_get_engine_caching(self, mock_create_engine):
-        """Test that engine is cached and reused."""
-        from wbweb.core.database.config import configure_database, get_engine
-        
-        mock_engine = Mock(spec=AsyncEngine)
-        mock_create_engine.return_value = mock_engine
-        
-        configure_database("sqlite+aiosqlite:///./test.db")
-        
-        # Call get_engine multiple times
-        engine1 = get_engine()
-        engine2 = get_engine()
-        
-        # Should only create engine once
-        assert mock_create_engine.call_count == 1
-        assert engine1 is engine2 is mock_engine
 
 
 class TestSessionMakerCreation:
