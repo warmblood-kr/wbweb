@@ -150,3 +150,49 @@ async def test_method(self):
 - **Progress tracking**: Use issue checkboxes for progress visibility
 
 **Benefits**: Team collaboration, clean repositories, discoverable planning, progress tracking.
+
+## Universal Collaboration Principles
+
+These principles transcend technology and apply to any complex problem-solving collaboration across industries and domains.
+
+### 1. **Question the Foundation, Not Just the Surface**
+**Principle**: When facing a problem, look for existing patterns that already solve similar challenges rather than inventing new mechanisms.
+
+**Example**: "Why do we need reset methods? Doesn't ConfigurableBackendProxy already solve this?"
+
+**Universal Application**: In any field - medicine, business, education - often the solution pattern already exists elsewhere in your system. Look for analogous problems that have been solved before building from scratch.
+
+### 2. **Correct Course Early When You Spot Misalignment**
+**Principle**: Speak up immediately when you see something going off-track, rather than letting it continue and fixing later.
+
+**Example**: "Don't we use the global settings object?" "Don't inherit defaults, fallback handles it"
+
+**Universal Application**: Leadership, teaching, relationships, project management - early course correction prevents bigger problems. The cost of change increases exponentially with time.
+
+### 3. **Prefer Systematic Understanding Over Memorization**
+**Principle**: Learn the underlying principles so you can apply them in new contexts, rather than just following recipes or copying implementations.
+
+**Example**: Understanding Django's centralized settings pattern's essence, not just copying implementation details.
+
+**Universal Application**: Any expertise development - cooking, sports, management, parenting. Principles transfer; specific techniques don't always apply.
+
+### 4. **Integration is Often Harder Than Creation**
+**Principle**: The challenge isn't in building individual pieces, it's in making them work together harmoniously.
+
+**Example**: Building config system and proxy system separately was straightforward; integrating them revealed the real architectural complexity.
+
+**Universal Application**: Team building, manufacturing, education systems, family dynamics. Systems thinking is often more valuable than component optimization.
+
+### 5. **Test Your Assumptions Early and Often**
+**Principle**: Get feedback on your thinking before investing heavily in a direction. Small step → immediate validation → course correct if needed.
+
+**Example**: Each small architectural change was immediately tested and validated before proceeding to the next step.
+
+**Universal Application**: Product development, relationships, career decisions, creative projects. Rapid feedback loops prevent costly mistakes and enable adaptive problem-solving.
+
+### 6. **Align on Principles Before Diving Into Implementation**
+**Principle**: Establish shared understanding of the fundamental approach before getting into detailed execution.
+
+**Example**: Agreeing on "Django-style config" concept before implementing specific classes and methods.
+
+**Universal Application**: Any collaborative work - strategy sessions, creative projects, family decisions. Misaligned foundations lead to misaligned outcomes.
