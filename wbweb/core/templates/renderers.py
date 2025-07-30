@@ -42,8 +42,8 @@ class DefaultRenderer:
     
     def render_ui(self, request: Request, **kwargs) -> HiccupTree:
         """Override in subclasses for full page HTML."""
-        raise NotImplementedError("Subclasses must implement render_ui")
-        
+        return []
+
     def render_api(self, request: Request, **kwargs) -> HiccupTree:
         """Default: fall back to UI rendering if no specific API version needed."""
         return self.render_ui(**kwargs)
