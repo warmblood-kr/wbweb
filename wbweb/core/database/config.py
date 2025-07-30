@@ -85,7 +85,9 @@ def get_engine() -> AsyncEngine:
             **engine_kwargs
         }
         
-        _engine = create_async_engine(database_url, **final_kwargs)
+        # Use engine factory for enhanced database engine creation
+        from .engine_factory import engine_factory
+        _engine = engine_factory.create_engine(database_url)
     
     return _engine
 
