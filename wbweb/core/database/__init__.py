@@ -5,9 +5,9 @@ Provides Django-style SQLAlchemy managers and base classes.
 For database engines, use engine_factory directly.
 """
 
-from .managers import Manager, configure_session_maker
+from .managers import Manager, get_session
 from .base import Base, BaseMeta
 
 __all__ = [
-    "Manager", "configure_session_maker", "Base", "BaseMeta"
+    "Manager", "get_session", "Base", "BaseMeta"
 ]
