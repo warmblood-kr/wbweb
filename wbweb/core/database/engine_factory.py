@@ -35,12 +35,7 @@ class DefaultEngineFactory:
         
         # Choose function based on URL, apply same kwargs
         engine_func = create_async_engine if is_async_url(database_url) else sa.create_engine
-        self._engines[database_url] = engine_func(
-            database_url,
-            pool_size=5,
-            max_overflow=10,
-            pool_pre_ping=True
-        )
+        self._engines[database_url] = engine_func(database_url)
         return self._engines[database_url]
 
 
@@ -60,13 +55,7 @@ class RdsIamEngineFactory:
         
         # Choose function based on URL, apply same kwargs
         engine_func = create_async_engine if is_async_url(database_url) else sa.create_engine
-        engine = engine_func(
-            f'{engine_url.drivername}:///',
-            pool_size=10,
-            max_overflow=20,
-            pool_recycle=900,   # TODO: Issue #12 - Verify IAM token vs connection lifecycle
-            pool_pre_ping=True
-        )
+        engine = engine_func(f'{engine_url.drivername}:///')
 
         @sa.event.listens_for(engine.sync_engine if hasattr(engine, 'sync_engine') else engine, 'do_connect')
         def provide_token(dialect, conn_rec, cargs, cparams):
@@ -122,12 +111,7 @@ class SecretManagerEngineFactory:
         
         # Choose function based on URL, apply same kwargs
         engine_func = create_async_engine if is_async_url(str(clean_url)) else sa.create_engine
-        engine = engine_func(
-            clean_url,
-            pool_size=5,
-            max_overflow=10,
-            pool_pre_ping=True
-        )
+        engine = engine_func(clean_url)
         
         self._engines[database_url] = engine
         return engine
