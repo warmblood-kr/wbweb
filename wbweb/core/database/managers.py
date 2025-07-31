@@ -20,7 +20,8 @@ async def get_session() -> AsyncSession:
     Use with async context manager for proper cleanup.
     
     Example:
-        async with get_session() as session:
+        session = await get_session()
+        async with session:
             session.add(User(name="John"))
             await session.commit()
     """
