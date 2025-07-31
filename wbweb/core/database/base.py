@@ -42,7 +42,8 @@ class Base(AsyncAttrs, DeclarativeBase, metaclass=BaseMeta):
         Django-style save method for model instances.
         Uses SQLAlchemy's merge() which automatically handles both INSERT and UPDATE.
         """
-        async with get_session() as session:
+        session = await get_session()
+        async with session:
             merged = await session.merge(self)
             await session.flush()
             # Update self with merged values to reflect any DB changes
