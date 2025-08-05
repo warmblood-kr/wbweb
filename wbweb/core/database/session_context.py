@@ -3,20 +3,19 @@ Optional session context management for wbweb.
 
 This provides Django-style session sharing while maintaining full backward compatibility.
 Existing code continues to work unchanged, but new features can opt into session sharing.
+
+Uses Python's native contextvars for proper async support with no external dependencies.
 """
 
+import contextvars
 from typing import Optional
 from contextlib import contextmanager
 from sqlalchemy.ext.asyncio import AsyncSession
 
-try:
-    from asgiref.local import Local
-    HAS_ASGIREF = True
-except ImportError:
-    # Fallback to threading.local if asgiref not available
-    import threading
-    Local = threading.local
-    HAS_ASGIREF = False
+# Use Python's native ContextVar - designed for async/await contexts
+_session_context: contextvars.ContextVar[Optional[AsyncSession]] = contextvars.ContextVar(
+    'session_context', default=None
+)
 
 
 class SessionContext:
@@ -25,28 +24,21 @@ class SessionContext:
     
     This is completely optional - if not used, wbweb behaves exactly as before.
     When used, it enables Django-style session sharing.
-    """
     
-    def __init__(self):
-        if HAS_ASGIREF:
-            # Use Django's approach - handles both threading and async contexts
-            self._local = Local(thread_critical=True)
-        else:
-            # Fallback to basic threading.local
-            self._local = Local()
+    Uses Python's native contextvars for proper async support with automatic cleanup.
+    """
     
     def get_current_session(self) -> Optional[AsyncSession]:
         """Get the current session for this context, if any."""
-        return getattr(self._local, 'session', None)
+        return _session_context.get()
     
     def set_current_session(self, session: AsyncSession) -> None:
         """Set the current session for this context."""
-        self._local.session = session
+        _session_context.set(session)
     
     def clear_current_session(self) -> None:
         """Clear the current session for this context."""
-        if hasattr(self._local, 'session'):
-            delattr(self._local, 'session')
+        _session_context.set(None)
     
     @contextmanager
     def session_context(self, session: AsyncSession):
