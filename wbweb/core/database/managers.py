@@ -16,6 +16,10 @@ async def get_session() -> AsyncSession:
     """
     Get a database session from engine_factory.
     
+    Enhanced to support optional session context sharing while maintaining
+    full backward compatibility. If a context session is active, returns that.
+    Otherwise, creates a new session as before.
+    
     This provides both high-level Manager operations and low-level session access.
     Use with async context manager for proper cleanup.
     
@@ -25,6 +29,17 @@ async def get_session() -> AsyncSession:
             session.add(User(name="John"))
             await session.commit()
     """
+    # Check for context session first (new optional feature)
+    try:
+        from .session_context import get_context_session
+        context_session = get_context_session()
+        if context_session is not None:
+            return context_session
+    except ImportError:
+        # If session_context module is not available, continue with old behavior
+        pass
+    
+    # Original behavior - create new session (unchanged)
     from ..config import settings
     from .engine_factory import engine_factory
     from sqlalchemy.ext.asyncio import async_sessionmaker
