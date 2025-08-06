@@ -7,10 +7,14 @@ while handling SQLAlchemy session management automatically.
 
 from functools import wraps
 from typing import Any, Dict, List, Optional, Type, TypeVar, Callable
-from sqlalchemy import select
+from sqlalchemy import select, exists
 from sqlalchemy.ext.asyncio import AsyncSession
 
 T = TypeVar('T')
+
+class ORMException(Exception): ...
+class DoesNotExist(ORMException): ...
+
 
 async def get_session() -> AsyncSession:
     """
@@ -92,8 +96,11 @@ class Manager:
                 stmt = stmt.where(getattr(self.model_class, key) == value)
             
             result = await session.execute(stmt)
-            return result.scalar_one_or_none()
-    
+            obj = result.scalar_one_or_none()
+            if obj is None:
+                raise DoesNotExist()
+            return obj
+
     async def filter(self, **kwargs) -> List[T]:
         """
         Get all model instances matching the given criteria.
@@ -129,14 +136,14 @@ class Manager:
         Returns (instance, created) tuple.
         """
         # Check if exists first
-        instance = await self.get(**kwargs)
-        if instance:
+        try:
+            instance = await self.get(**kwargs)
             return instance, False
-        
-        # Create new instance with defaults
-        create_kwargs = kwargs.copy()
-        if defaults:
-            create_kwargs.update(defaults)
-        
-        instance = await self.create(**create_kwargs)
-        return instance, True
+        except DoesNotExist:
+            # Create new instance with defaults
+            create_kwargs = kwargs.copy()
+            if defaults:
+                create_kwargs.update(defaults)
+
+            instance = await self.create(**create_kwargs)
+            return instance, True
