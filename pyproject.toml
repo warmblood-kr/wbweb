@@ -66,5 +66,6 @@ exclude = ["tests*", "analysis*", "docs*"]
 
 [dependency-groups]
 dev = [
+    "aiosqlite>=0.21.0",
     "ruff>=0.12.7",
 ]
