@@ -72,7 +72,7 @@ class HiccupRenderer:
             return k in ['checked', 'disabled', 'multiple', 'readonly', 'required']
 
         def render_attr(k, v):
-            if is_unary_attr(k):
+            if is_unary_attr(k) and v is True:
                 return str(k)
 
             return f'{k}="{self._escape_html(str(v))}"'
