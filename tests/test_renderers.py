@@ -54,7 +54,7 @@ class TestUIRendererAndApiRenderer:
         
         # Test it can render hiccup
         result = renderer.render(['p', {}, 'UI content'])
-        assert result == '<p>UI content</p>'
+        assert result == '<p>UI content</p>\n'
         
     def test_api_renderer_inherits_hiccup(self):
         """Test ApiRenderer inherits from HiccupRenderer."""
@@ -65,7 +65,7 @@ class TestUIRendererAndApiRenderer:
         
         # Test it can render hiccup
         result = renderer.render(['div', {'class': 'api'}, 'API content'])
-        assert result == '<div class="api">API content</div>'
+        assert result == '<div class="api">API content</div>\n'
 
 
 class TestDefaultRenderer:

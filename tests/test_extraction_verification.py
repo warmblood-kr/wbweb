@@ -43,11 +43,11 @@ class TestHiccupRendererExtraction:
         
         # Test simple tag
         result = renderer.render(["p", {}, "Hello wbweb!"])
-        assert result == "<p>Hello wbweb!</p>"
+        assert result == "<p>Hello wbweb!</p>\n"
         
         # Test tag with attributes
         result = renderer.render(["div", {"class": "extracted"}, "Success!"])
-        assert result == '<div class="extracted">Success!</div>'
+        assert result == '<div class="extracted">Success!</div>\n'
         
     def test_html_escaping_works(self):
         """Test HTML escaping functionality after extraction."""
@@ -83,7 +83,7 @@ class TestHiccupRendererExtraction:
         assert '<div class="container" id="main">' in result
         assert '<h1>wbweb Extraction Test</h1>' in result
         assert '<p class="description">HiccupRenderer successfully extracted!</p>' in result
-        assert '<ul><li>Import works</li><li>Functionality preserved</li><li>Tests passing</li></ul>' in result
+        assert '<ul><li>Import works</li>\n\n<li>Functionality preserved</li>\n\n<li>Tests passing</li>\n</ul>\n' in result
         
 
 class TestPackageStructure:
