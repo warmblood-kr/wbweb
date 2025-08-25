@@ -9,7 +9,7 @@ Uses Python's native contextvars for proper async support with no external depen
 
 import contextvars
 from typing import Optional
-from contextlib import contextmanager
+from contextlib import asynccontextmanager
 from sqlalchemy.ext.asyncio import AsyncSession
 
 # Use Python's native ContextVar - designed for async/await contexts
@@ -40,33 +40,57 @@ class SessionContext:
         """Clear the current session for this context."""
         _session_context.set(None)
     
-    @contextmanager
-    def session_context(self, session: AsyncSession):
+    @asynccontextmanager
+    async def session_context(self, session: AsyncSession):
         """
         Context manager to set a session as current for all Manager operations.
         
         Usage:
             session = await get_session()
-            async with session:
-                with session_context.session_context(session):
-                    # All Manager operations will use this session
-                    user = await User.objects.create(email='test@example.com')
-                    org = await Organization.objects.create(name='MyOrg')
-                    # Both user and org are in the same session!
+            async with session_context.session_context(session):
+                # All Manager operations will use this session
+                user = await User.objects.create(email='test@example.com')
+                org = await Organization.objects.create(name='MyOrg')
+                # Both user and org are in the same session!
+                # Session is automatically closed when context exits
         """
         old_session = self.get_current_session()
         try:
             self.set_current_session(session)
             yield
         finally:
+            await session.close()
             if old_session is not None:
                 self.set_current_session(old_session)
             else:
                 self.clear_current_session()
 
 
-# Global session context instance - optional to use
+# Global session context instance - optional to use  
 session_context = SessionContext()
+
+
+@asynccontextmanager
+async def get_shared_session():
+    """
+    Get a shared session context for test fixtures and similar use cases.
+    
+    Usage:
+        async with get_shared_session():
+            # All Manager operations automatically share the same session
+            user = await User.objects.create(email='test@example.com')
+            org = await Organization.objects.create(name='MyOrg')
+            # Session is automatically closed when context exits
+    """
+    from .managers import get_session
+    
+    session = await get_session()
+    session_context.set_current_session(session)
+    try:
+        yield
+    finally:
+        session_context.clear_current_session()
+        await session.close()
 
 
 def get_context_session() -> Optional[AsyncSession]:
