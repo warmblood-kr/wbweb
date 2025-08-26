@@ -8,6 +8,7 @@ import warnings
 from functools import wraps
 from starlette.responses import HTMLResponse, RedirectResponse, Response
 from starlette.requests import Request
+from starlette.datastructures import URL
 from ..templates.renderers import get_preferred_format
 
 
@@ -40,8 +41,14 @@ def renderer(renderer_class):
 
             if redirect_url:
                 if request.headers.get('HX-Request'):
+                    url = redirect_url
+
+                    if isinstance(redirect_url, URL):
+                        url = redirect_url.path if redirect_url.hostname == request.url.hostname \
+                            else str(redirect_url)
+
                     response = Response(status_code=200)
-                    response.headers['HX-Redirect'] = redirect_url
+                    response.headers['HX-Redirect'] = url
                     return response
                     
                 return RedirectResponse(redirect_url, status_code=303)
