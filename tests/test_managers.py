@@ -137,3 +137,50 @@ class TestAsyncQuerySetWithDatabase:
         assert 'name' in stmt_str
         assert 'WHERE' in stmt_str
         assert 'JOIN' in stmt_str  # This verifies options() actually works
+    
+    @pytest.mark.asyncio
+    async def test_order_by_ascending(self, setup_database):
+        """Test order_by with ascending order (default)."""
+        UserModel.objects = Manager(UserModel)
+        
+        users = await UserModel.objects.order_by(UserModel.name)
+        names = [user.name for user in users]
+        
+        assert names == ['Alice', 'Bob', 'Charlie']
+    
+    @pytest.mark.asyncio
+    async def test_order_by_descending(self, setup_database):
+        """Test order_by with descending order."""
+        UserModel.objects = Manager(UserModel)
+        
+        users = await UserModel.objects.order_by(UserModel.name.desc())
+        names = [user.name for user in users]
+        
+        assert names == ['Charlie', 'Bob', 'Alice']
+    
+    @pytest.mark.asyncio
+    async def test_order_by_chaining_replaces(self, setup_database):
+        """Test that multiple order_by calls replace previous ordering."""
+        UserModel.objects = Manager(UserModel)
+        
+        # First order by name, then by email - should only order by email
+        users = await UserModel.objects.order_by(UserModel.name).order_by(UserModel.email)
+        emails = [user.email for user in users]
+        
+        # Should be ordered by email, not name
+        assert emails == ['alice@test.com', 'bob@test.com', 'charlie@test.com']
+    
+    @pytest.mark.asyncio
+    async def test_order_by_with_filter_chaining(self, setup_database):
+        """Test chaining order_by with filter."""
+        UserModel.objects = Manager(UserModel)
+        
+        # Filter then order
+        users = await UserModel.objects.filter(name='Alice').order_by(UserModel.email)
+        assert len(users) == 1
+        assert users[0].name == 'Alice'
+        
+        # Order then filter
+        users = await UserModel.objects.order_by(UserModel.name.desc()).filter(name='Bob')
+        assert len(users) == 1
+        assert users[0].name == 'Bob'

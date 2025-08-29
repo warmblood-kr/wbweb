@@ -49,6 +49,12 @@ class AsyncQuerySet:
         new_qs._stmt = new_qs._stmt.options(*opts)
         return new_qs
     
+    def order_by(self, *args) -> 'AsyncQuerySet':
+        """Add ORDER BY clauses. Returns new QuerySet for chaining."""
+        new_qs = self._clone()
+        new_qs._stmt = new_qs._stmt.order_by(*args)
+        return new_qs
+    
     async def _fetch_all(self) -> List[T]:
         """Execute query and return all results."""
         session = await self.session_factory()
@@ -174,6 +180,14 @@ class Manager:
         Returns AsyncQuerySet. Await the result to get List[T].
         """
         return AsyncQuerySet(self.model_class, get_session)
+    
+    def order_by(self, *args) -> AsyncQuerySet:
+        """
+        Get all model instances ordered by given columns.
+        
+        Returns AsyncQuerySet for method chaining.
+        """
+        return AsyncQuerySet(self.model_class, get_session).order_by(*args)
     
     async def get_or_create(self, defaults: Optional[Dict[str, Any]] = None, **kwargs) -> tuple[T, bool]:
         """
