@@ -4,11 +4,14 @@ Decorators for web layer framework.
 Provides reusable decorators for cross-cutting concerns like content negotiation.
 """
 
+import json
 import warnings
 from functools import wraps
+
 from starlette.responses import HTMLResponse, RedirectResponse, Response
 from starlette.requests import Request
 from starlette.datastructures import URL
+
 from ..templates.renderers import get_preferred_format
 
 
@@ -28,51 +31,30 @@ def renderer(renderer_class):
     def decorator(view_func):
         @wraps(view_func)
         async def wrapper(request):
-            # Call the view function to get result dict
             result_dict = await view_func(request)
-            
-            # Create domain-specific renderer instance
-            renderer = renderer_class()
-            
-            # Let renderer handle content negotiation based on Accept header
-            component_or_data = renderer.render(request, **result_dict)
-            
+
             redirect_url = result_dict.get('redirect_url', '')
 
             if redirect_url:
-                if request.headers.get('HX-Request'):
-                    url = redirect_url
+                if not request.headers.get('HX-Request'):
+                    return RedirectResponse(redirect_url, status_code=303)
 
-                    if isinstance(redirect_url, URL):
-                        url = redirect_url.path if redirect_url.hostname == request.url.hostname \
-                            else str(redirect_url)
+                url = redirect_url
 
-                    response = Response(status_code=200)
-                    response.headers['HX-Redirect'] = url
-                    return response
-                    
-                return RedirectResponse(redirect_url, status_code=303)
-            
-            # Handle different return types
-            if isinstance(component_or_data, dict):
-                # JSON response - business data already serialized
-                import json
-                json_str = json.dumps(component_or_data)
-                return HTMLResponse(json_str, status_code=result_dict.get('status_code', 200))
-            else:
-                # HTML/XML component response
-                from ..templates.hiccup import HiccupRenderer
-                hiccup_renderer = HiccupRenderer()
-                html = hiccup_renderer.render(component_or_data)
-                
-                # Return HTML response
-                status_code = result_dict.get('status_code', 200)
-                
-                return HTMLResponse(html, status_code=status_code)
-        
+                if isinstance(redirect_url, URL):
+                    url = redirect_url.path if redirect_url.hostname == request.url.hostname \
+                        else str(redirect_url)
+
+                response = Response(status_code=200)
+                response.headers['HX-Redirect'] = url
+                return response
+
+            renderer = renderer_class()
+            data = renderer.render(request, **result_dict)
+            return Response(**data)
+
         return wrapper
     return decorator
-
 
 
 def render_error_response(request: Request, api_message: str, ui_html: str, status_code: int) -> HTMLResponse:

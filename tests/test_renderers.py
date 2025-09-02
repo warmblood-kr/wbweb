@@ -2,6 +2,9 @@
 Test renderer strategy classes extraction and functionality.
 """
 
+import json
+
+
 class MockRequest:
     """Mock request for testing without starlette dependency."""
     
@@ -83,7 +86,8 @@ class TestDefaultRenderer:
         request = MockRequest(accept_header='text/html')
         
         result = renderer.render(request, test_data='hello')
-        assert result == ['p', {}, 'UI response']
+        content = result['content']
+        assert content == '''<p>UI response</p>\n'''
         
     def test_json_accept_header(self):
         """Test JSON Accept header routing."""
@@ -97,13 +101,12 @@ class TestDefaultRenderer:
         request = MockRequest(accept_header='application/json')
         
         result = renderer.render(request, test_data='hello')
+
+        content = json.loads(result['content'])
         
         # Should get JSON representation
-        assert isinstance(result, dict)
-        assert result['component'] == 'div'
-        assert result['attributes']['class'] == 'api'
-        assert result['children'] == ['API response']
-        
+        assert content == ['div', {'class': 'api'}, 'API response']
+
     def test_api_client_header_routing(self):
         """Test x-api-client header routing."""
         from wbweb.core.templates import DefaultRenderer
@@ -117,8 +120,10 @@ class TestDefaultRenderer:
         request.headers = {'accept': 'application/xml'}
         
         result = renderer.render(request)
-        assert result == ['span', {}, 'Legacy API']
-        
+        content = json.loads(result['content'])
+
+        assert content == ['span', {}, 'Legacy API']
+
     def test_raw_accept_header(self):
         """Test raw Accept header routing."""
         from wbweb.core.templates import DefaultRenderer
@@ -129,11 +134,13 @@ class TestDefaultRenderer:
         result = renderer.render(request, debug_data='test', number=42)
         
         # Should get JSON string
-        assert isinstance(result, str)
-        assert 'debug_data' in result
-        assert 'test' in result
-        assert '42' in result
-        
+        content = result['content']
+
+        assert content == {
+            'debug_data': 'test',
+            'number': 42,
+        }
+
     def test_default_fallback(self):
         """Test default fallback to UI rendering."""
         from wbweb.core.templates import DefaultRenderer
@@ -146,80 +153,5 @@ class TestDefaultRenderer:
         request = MockRequest()  # No special headers
         
         result = renderer.render(request)
-        assert result == ['main', {}, 'Default UI']
-
-
-class TestComponentToJson:
-    """Test hiccup component to JSON conversion."""
-    
-    def test_simple_component_conversion(self):
-        """Test converting simple hiccup component to JSON."""
-        from wbweb.core.templates import DefaultRenderer
-        
-        renderer = DefaultRenderer()
-        component = ['p', {}, 'Simple text']
-        
-        result = renderer.component_to_json(component)
-        
-        expected = {
-            'component': 'p',
-            'attributes': {},
-            'children': ['Simple text']
-        }
-        assert result == expected
-        
-    def test_component_with_attributes(self):
-        """Test converting component with attributes."""
-        from wbweb.core.templates import DefaultRenderer
-        
-        renderer = DefaultRenderer()
-        component = ['div', {'class': 'test', 'id': 'main'}, 'Content']
-        
-        result = renderer.component_to_json(component)
-        
-        expected = {
-            'component': 'div',
-            'attributes': {'class': 'test', 'id': 'main'},
-            'children': ['Content']
-        }
-        assert result == expected
-        
-    def test_nested_components(self):
-        """Test converting nested hiccup components."""
-        from wbweb.core.templates import DefaultRenderer
-        
-        renderer = DefaultRenderer()
-        component = [
-            'div', {},
-            ['p', {}, 'First paragraph'],
-            ['p', {'class': 'special'}, 'Second paragraph']
-        ]
-        
-        result = renderer.component_to_json(component)
-        
-        expected = {
-            'component': 'div',
-            'attributes': {},
-            'children': [
-                {
-                    'component': 'p',
-                    'attributes': {},
-                    'children': ['First paragraph']
-                },
-                {
-                    'component': 'p', 
-                    'attributes': {'class': 'special'},
-                    'children': ['Second paragraph']
-                }
-            ]
-        }
-        assert result == expected
-        
-    def test_plain_text_passthrough(self):
-        """Test that plain text passes through unchanged."""
-        from wbweb.core.templates import DefaultRenderer
-        
-        renderer = DefaultRenderer()
-        
-        result = renderer.component_to_json('Just plain text')
-        assert result == 'Just plain text'
+        content = result['content']
+        assert content == '<main>Default UI</main>\n'
