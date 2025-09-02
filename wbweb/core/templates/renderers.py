@@ -54,13 +54,17 @@ class DefaultRenderer:
         accept_header_value = request.headers.get('accept', 'text/html')
         accept = parse_accept_header(accept_header_value)[0][0]
 
-        render_func = {
+        render_func_map = {
             'application/json': lambda: json.dumps(self.render_api(request, **kwargs)),
             'text/html': lambda: HiccupRenderer().render(self.render_ui(request, **kwargs)),
             'text/xml': lambda: json.dumps(self.render_api(request, **kwargs)),
             'application/xml': lambda: json.dumps(self.render_api(request, **kwargs)),
             'application/raw': lambda: self.render_raw(request, **kwargs),
-        }.get(accept, lambda: '')
+        }
+
+        accept = 'text/html' if accept not in render_func_map else accept
+
+        render_func = render_func_map[accept]
 
         return {'content': render_func(), 'media_type': accept, 'status_code': 200}
 
