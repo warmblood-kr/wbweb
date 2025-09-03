@@ -69,7 +69,7 @@ class HiccupRenderer:
             return ''
 
         def is_unary_attr(k):
-            return k in ['checked', 'disabled', 'multiple', 'readonly', 'required']
+            return k in ['checked', 'disabled', 'multiple', 'readonly', 'required', 'autofocus']
 
         def render_attr(k, v):
             if is_unary_attr(k) and v is True:
