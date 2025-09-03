@@ -75,7 +75,16 @@ class HiccupRenderer:
             if is_unary_attr(k) and v is True:
                 return str(k)
 
-            return f'{k}="{self._escape_html(str(v))}"'
+            trans_map = {
+                'True': 'true',
+                'False': 'false',
+                'None': 'null'
+            }
+
+            _v = str(v)
+            _v = trans_map[_v] if _v in trans_map else _v
+
+            return f'{k}="{self._escape_html(_v)}"'
 
         attr_pairs = [
             render_attr(k, v)
