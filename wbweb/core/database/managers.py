@@ -60,7 +60,14 @@ class AsyncQuerySet:
         session = await self.session_factory()
         async with session:
             result = await session.execute(self._stmt)
-            return list(result.scalars().all())
+            
+            # Handle raw queries vs model queries
+            if self.model_class is None:
+                # Raw query - return row objects
+                return result.fetchall()
+            else:
+                # Model query - return model instances
+                return list(result.scalars().all())
     
     def __await__(self):
         """Make QuerySet awaitable. Caches results for list-like behavior."""
@@ -76,6 +83,39 @@ class AsyncQuerySet:
             self._result_cache = await self._fetch_all()
         for item in self._result_cache:
             yield item
+    
+    async def get(self):
+        """Get single result (for raw queries)"""
+        if self.model_class is not None:
+            raise ValueError("get() method is for raw queries only. Use await queryset for model queries.")
+        
+        session = await self.session_factory()
+        async with session:
+            result = await session.execute(self._stmt)
+            return result.fetchone()
+    
+    async def first(self):
+        """Get first result or None"""
+        session = await self.session_factory()
+        async with session:
+            result = await session.execute(self._stmt)
+            
+            if self.model_class is None:
+                # Raw query
+                return result.first()
+            else:
+                # Model query
+                return result.scalars().first()
+    
+    async def scalar(self):
+        """Get single scalar value (for raw queries)"""
+        if self.model_class is not None:
+            raise ValueError("scalar() method is for raw queries only.")
+        
+        session = await self.session_factory()
+        async with session:
+            result = await session.execute(self._stmt)
+            return result.scalar()
 
 
 async def get_session() -> AsyncSession:
