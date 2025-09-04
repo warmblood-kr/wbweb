@@ -69,11 +69,13 @@ class HiccupRenderer:
             return ''
 
         def is_unary_attr(k):
-            return k in ['checked', 'disabled', 'multiple', 'readonly', 'required', 'autofocus']
+            return k in ['checked', 'selected', 'disabled', 'multiple', 'readonly', 'required', 'autofocus']
 
         def render_attr(k, v):
-            if is_unary_attr(k) and v is True:
-                return str(k)
+            if is_unary_attr(k):
+                if v is True:
+                    return str(k)
+                return ''
 
             trans_map = {
                 'True': 'true',
