@@ -55,6 +55,38 @@ class AsyncQuerySet:
         new_qs._stmt = new_qs._stmt.order_by(*args)
         return new_qs
     
+    def add_columns(self, *columns) -> 'AsyncQuerySet':
+        """Add columns to SELECT statement (for raw queries)"""
+        if self.model_class is not None:
+            raise ValueError("add_columns() is for raw queries only")
+        
+        new_qs = self._clone()
+        new_qs._stmt = new_qs._stmt.add_columns(*columns)
+        return new_qs
+    
+    def group_by(self, *args) -> 'AsyncQuerySet':
+        """Add GROUP BY clauses (for raw queries)"""
+        if self.model_class is not None:
+            raise ValueError("group_by() is for raw queries only")
+        
+        new_qs = self._clone()
+        new_qs._stmt = new_qs._stmt.group_by(*args)
+        return new_qs
+    
+    def select_from(self, *args) -> 'AsyncQuerySet':
+        """Update FROM clause (for raw queries)"""
+        if self.model_class is not None:
+            raise ValueError("select_from() is for raw queries only")
+        
+        new_qs = self._clone()
+        new_qs._stmt = new_qs._stmt.select_from(*args)
+        return new_qs
+    
+    @property
+    def froms(self):
+        """Access to FROM clauses (for compatibility with SQLAlchemy select objects)"""
+        return self._stmt.froms
+    
     async def _fetch_all(self) -> List[T]:
         """Execute query and return all results."""
         session = await self.session_factory()
@@ -116,6 +148,10 @@ class AsyncQuerySet:
         async with session:
             result = await session.execute(self._stmt)
             return result.scalar()
+    
+    async def all(self):
+        """Get all results (explicit method for convenience)"""
+        return await self._fetch_all()
 
 
 async def get_session() -> AsyncSession:
