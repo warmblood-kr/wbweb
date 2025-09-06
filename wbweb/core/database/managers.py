@@ -36,11 +36,37 @@ class AsyncQuerySet:
         new_qs._stmt = self._stmt
         return new_qs
     
-    def filter(self, **kwargs) -> 'AsyncQuerySet':
-        """Add WHERE conditions. Returns new QuerySet for chaining."""
+    def filter(self, *expressions, **kwargs) -> 'AsyncQuerySet':
+        """
+        Add WHERE conditions. Returns new QuerySet for chaining.
+        
+        Supports both Django-style kwargs and native SQLAlchemy expressions:
+        
+        Examples:
+            # Simple kwargs (Django-style)
+            Model.objects.filter(name="test", status="active")
+            
+            # SQLAlchemy expressions (superior for complex queries)
+            Model.objects.filter(Model.id.in_([1, 2, 3]))
+            Model.objects.filter(Model.name.like('%pattern%'))
+            Model.objects.filter(Model.date.between(start, end))
+            
+            # Mixed usage
+            Model.objects.filter(Model.id.in_([1, 2, 3]), status="active")
+            
+            # Method chaining
+            Model.objects.filter(status="active").filter(Model.id.in_([1, 2, 3]))
+        """
         new_qs = self._clone()
+        
+        # Apply SQLAlchemy expressions (positional args)
+        for expression in expressions:
+            new_qs._stmt = new_qs._stmt.where(expression)
+        
+        # Apply simple kwargs
         for key, value in kwargs.items():
             new_qs._stmt = new_qs._stmt.where(getattr(self.model_class, key) == value)
+        
         return new_qs
     
     def options(self, *opts) -> 'AsyncQuerySet':
@@ -239,15 +265,27 @@ class Manager:
                 raise DoesNotExist()
             return obj
 
-    def filter(self, **kwargs) -> AsyncQuerySet:
+    def filter(self, *expressions, **kwargs) -> AsyncQuerySet:
         """
         Get model instances matching the given criteria.
         
+        Supports both Django-style kwargs and native SQLAlchemy expressions.
         Returns AsyncQuerySet for method chaining (.filter().options()).
         Awaiting the result gives List[T] for backwards compatibility.
+        
+        Examples:
+            # Simple kwargs (Django-style)
+            Model.objects.filter(name="test", status="active")
+            
+            # SQLAlchemy expressions (superior for complex queries)
+            Model.objects.filter(Model.id.in_([1, 2, 3]))
+            Model.objects.filter(Model.name.like('%pattern%'))
+            
+            # Method chaining
+            Model.objects.filter(status="active").filter(Model.id.in_([1, 2, 3]))
         """
         qs = AsyncQuerySet(self.model_class, get_session)
-        return qs.filter(**kwargs)
+        return qs.filter(*expressions, **kwargs)
     
     def all(self) -> AsyncQuerySet:
         """

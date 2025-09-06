@@ -201,7 +201,51 @@ class User(Base):
 # Use Django-style ORM
 user = await User.objects.create(name='John', email='john@example.com')
 users = await User.objects.filter(active=True).all()
+
+# Method chaining for complex queries
+results = await (User.objects
+    .filter(status="active")
+    .filter(User.created_at > yesterday)
+    .order_by(User.name))
+
+# Add loading options
+tenants = await (Tenant.objects
+    .filter(Tenant.status.in_(['active', 'provisioned']))
+    .options(joinedload(Tenant.organization)))
+
+### Supported SQLAlchemy Operations
+## The expression interface supports all SQLAlchemy column operations:
+
+# Comparison operations
+Model.objects.filter(Model.age > 18)
+Model.objects.filter(Model.score.between(80, 100))
+
+# String operations  
+Model.objects.filter(Model.name.like('%pattern%'))
+Model.objects.filter(Model.email.ilike('%@DOMAIN.COM'))  # Case 
+nsensitive
+
+# List operations
+Model.objects.filter(Model.status.in_(['active', 'pending']))
+Model.objects.filter(Model.tags.any('important'))  # PostgreSQL 
+rrays
+
+# Null checks
+Model.objects.filter(Model.deleted_at.is_(None))
+Model.objects.filter(Model.description.isnot(None))
+
+# Date operations
+Model.objects.filter(Model.created_at >= datetime.now())
+Model.objects.filter(extract('year', Model.created_at) == 2024)
+
+# SQLAlchemy expressions for complex conditions
+await Model.objects.filter(
+    Model.created_at.between(start_date, end_date),
+    Model.score > average_score,
+    Model.tags.any(tag_name)
+)
 ```
+
 
 ### Database Configuration
 
