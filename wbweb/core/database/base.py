@@ -5,7 +5,9 @@ Provides base classes for all database models with automatic manager setup.
 """
 
 from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, relationship
+from sqlalchemy.orm.exc import DetachedInstanceError
+from sqlalchemy.inspection import inspect
 from .managers import Manager, get_session
 
 

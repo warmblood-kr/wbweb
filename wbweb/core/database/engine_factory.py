@@ -11,6 +11,7 @@ Provides configurable database engine factories with support for:
 import json
 import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.pool import StaticPool
 from ..utils.proxy import ConfigurableBackendProxy
 
 
@@ -34,8 +35,34 @@ class DefaultEngineFactory:
             return self._engines[database_url]
         
         # Choose function based on URL, apply same kwargs
-        engine_func = create_async_engine if is_async_url(database_url) else sa.create_engine
-        self._engines[database_url] = engine_func(database_url)
+        engine_func = create_async_engine if is_async_url(database_url) \
+            else sa.create_engine
+
+        # Robust detection of in-memory SQLite without hard-coding driver strings
+        url_obj = sa.engine.url.make_url(database_url)
+
+        backend = url_obj.get_backend_name() if hasattr(url_obj, 'get_backend_name') \
+            else (url_obj.drivername.split('+', 1)[0] if url_obj.drivername else '')
+        database = (url_obj.database or '').strip() if hasattr(url_obj, 'database') \
+            else ''
+
+        is_sqlite_memory = True if backend == 'sqlite' and database == ':memory:' \
+            else False
+
+        if is_sqlite_memory:
+            connect_args = {}
+
+            if engine_func is create_async_engine:
+                self._engines[database_url] = create_async_engine(
+                    database_url, poolclass=StaticPool, connect_args=connect_args
+                )
+            else:
+                connect_args.setdefault('check_same_thread', False)
+                self._engines[database_url] = sa.create_engine(
+                    database_url, poolclass=StaticPool, connect_args=connect_args
+                )
+        else:
+            self._engines[database_url] = engine_func(database_url)
         return self._engines[database_url]
 
 

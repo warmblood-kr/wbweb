@@ -197,17 +197,6 @@ async def get_session() -> AsyncSession:
             session.add(User(name="John"))
             await session.commit()
     """
-    # Check for context session first (new optional feature)
-    try:
-        from .session_context import get_context_session
-        context_session = get_context_session()
-        if context_session is not None:
-            return context_session
-    except ImportError:
-        # If session_context module is not available, continue with old behavior
-        pass
-    
-    # Original behavior - create new session (unchanged)
     from ..config import settings
     from .engine_factory import engine_factory
     from sqlalchemy.ext.asyncio import async_sessionmaker
@@ -215,9 +204,6 @@ async def get_session() -> AsyncSession:
     engine = engine_factory.create_engine(settings.DATABASE_URL)
     session_maker = async_sessionmaker(engine, expire_on_commit=False)
     return session_maker()
-
-
-# Remove complex @with_session decorator - using simpler approach
 
 
 class Manager:
