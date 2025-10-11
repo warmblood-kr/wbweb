@@ -9,6 +9,8 @@ from functools import wraps
 from typing import Any, Dict, List, Optional, Type, TypeVar, Callable
 from sqlalchemy import select, exists
 from sqlalchemy.ext.asyncio import AsyncSession
+import logging
+import time
 
 T = TypeVar('T')
 
@@ -200,9 +202,34 @@ async def get_session() -> AsyncSession:
     from ..config import settings
     from .engine_factory import engine_factory
     from sqlalchemy.ext.asyncio import async_sessionmaker
-    
+    logger = logging.getLogger(__name__)
+
+    started = time.perf_counter()
     engine = engine_factory.create_engine(settings.DATABASE_URL)
+    engine_elapsed = time.perf_counter() - started
+
+    if engine_elapsed >= 1:
+        logger.warning(
+            "Database engine acquisition took %.2fs", engine_elapsed
+        )
+    else:
+        logger.debug(
+            "Database engine acquisition took %.2fs", engine_elapsed
+        )
+
+    maker_started = time.perf_counter()
     session_maker = async_sessionmaker(engine, expire_on_commit=False)
+    maker_elapsed = time.perf_counter() - maker_started
+
+    if maker_elapsed >= 1:
+        logger.warning(
+            "Database sessionmaker creation took %.2fs", maker_elapsed
+        )
+    else:
+        logger.debug(
+            "Database sessionmaker creation took %.2fs", maker_elapsed
+        )
+
     return session_maker()
 
 

@@ -9,10 +9,15 @@ Provides configurable database engine factories with support for:
 """
 
 import json
+import logging
+import time
 import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.pool import StaticPool
 from ..utils.proxy import ConfigurableBackendProxy
+
+
+logger = logging.getLogger(__name__)
 
 
 def is_async_url(url: str) -> bool:
@@ -123,7 +128,18 @@ class SecretManagerEngineFactory:
         secret_arn = engine_url.query.get('secret_arn')
 
         secrets_client = boto3.client('secretsmanager')
+
+        fetch_started = time.perf_counter()
+        logger.info(
+            "SecretManager engine: fetching secret",
+        )
         secret_response = secrets_client.get_secret_value(SecretId=secret_arn)
+        secret_fetch_elapsed = time.perf_counter() - fetch_started
+        logger.info(
+            "SecretManager engine: fetched secret in %.2fs",
+            secret_fetch_elapsed,
+        )
+
         secret_dict = json.loads(secret_response['SecretString'])
 
         # Create clean URL with just the database connection info (no query parameters)
@@ -138,8 +154,16 @@ class SecretManagerEngineFactory:
         
         # Choose function based on URL, apply same kwargs
         engine_func = create_async_engine if is_async_url(str(clean_url)) else sa.create_engine
+
+        engine_started = time.perf_counter()
         engine = engine_func(clean_url)
-        
+        engine_elapsed = time.perf_counter() - engine_started
+        logger.info(
+            "SecretManager engine: engine created in %.2fs (driver=%s)",
+            engine_elapsed,
+            engine_url.drivername,
+        )
+
         self._engines[database_url] = engine
         return engine
 
