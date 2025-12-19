@@ -319,7 +319,7 @@ class Manager:
     async def get_or_create(self, defaults: Optional[Dict[str, Any]] = None, **kwargs) -> tuple[T, bool]:
         """
         Get an instance or create it if it doesn't exist.
-        
+
         Similar to Django's Model.objects.get_or_create()
         Returns (instance, created) tuple.
         """
@@ -335,3 +335,27 @@ class Manager:
 
             instance = await self.create(**create_kwargs)
             return instance, True
+
+    async def delete(self, **kwargs) -> bool:
+        """
+        Delete a model instance matching the given criteria.
+
+        Similar to Django's Model.objects.filter(**kwargs).delete()
+        Returns True if an instance was deleted, False if no match found.
+
+        Example:
+            deleted = await Model.objects.delete(id=1, status="inactive")
+        """
+        session = await get_session()
+        async with session:
+            stmt = select(self.model_class)
+            for key, value in kwargs.items():
+                stmt = stmt.where(getattr(self.model_class, key) == value)
+
+            result = await session.execute(stmt)
+            instance = result.scalar_one_or_none()
+            if instance:
+                await session.delete(instance)
+                await session.commit()
+                return True
+            return False

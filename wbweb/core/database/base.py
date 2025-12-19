@@ -53,3 +53,14 @@ class Base(AsyncAttrs, DeclarativeBase, metaclass=BaseMeta):
                 setattr(self, attr_name, getattr(merged, attr_name))
             await session.commit()  # Auto-commit like Django
             return self
+
+    async def delete(self):
+        """
+        Django-style delete method for model instances.
+        Handles detached instances by re-attaching via merge() before deletion.
+        """
+        session = await get_session()
+        async with session:
+            merged = await session.merge(self)
+            await session.delete(merged)
+            await session.commit()
