@@ -30,8 +30,8 @@ def renderer(renderer_class):
     
     def decorator(view_func):
         @wraps(view_func)
-        async def wrapper(request):
-            result_dict = await view_func(request)
+        async def wrapper(request, **kwargs):
+            result_dict = await view_func(request, **kwargs)
 
             redirect_url = result_dict.get('redirect_url', '')
 
