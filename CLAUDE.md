@@ -146,6 +146,7 @@ async def test_method(self):
 **Implementation**:
 - **Large project planning**: Create comprehensive GitHub issues with implementation details
 - **Cross-repository coordination**: Link related issues across repositories  
+- **Cross-repo closing keywords**: GitHub only resolves `Closes #N` (same repo) or `Closes owner/repo#N` (cross-repo) — a bare `Closes repo#N` is silently ignored.
 - **Phase-based execution**: Break large projects into phases with separate issues
 - **Progress tracking**: Use issue checkboxes for progress visibility
 
